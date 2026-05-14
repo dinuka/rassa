@@ -1,0 +1,21 @@
+{
+  "name": "@repo/ai-sdk",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint src/",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "^19.2.0",
+    "@repo/api-client": "workspace:*",
+    "@repo/shared-types": "workspace:*"
+  },
+  "devDependencies": {
+    "@repo/tsconfig": "workspace:*",
+    "@types/react": "^19.2.0",
+    "typescript": "^6.0.3"
+  }
+}

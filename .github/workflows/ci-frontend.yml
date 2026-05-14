@@ -1,0 +1,20 @@
+name: CI Frontend
+
+on:
+  push:
+    branches: [main]
+    paths: ["apps/candidate-portal/**", "apps/company-portal/**", "apps/admin/**", "packages/**"]
+  pull_request:
+    paths: ["apps/candidate-portal/**", "apps/company-portal/**", "apps/admin/**", "packages/**"]
+
+jobs:
+  lint-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "20", cache: "pnpm" }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint --filter=@rassa/candidate-portal --filter=@rassa/company-portal --filter=@rassa/admin
+      - run: pnpm typecheck --filter=@rassa/candidate-portal --filter=@rassa/company-portal --filter=@rassa/admin

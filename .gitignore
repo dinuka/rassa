@@ -1,0 +1,28 @@
+node_modules/
+.next/
+dist/
+turbo/
+
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+uv.lock
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# AI models (gitignored — download via script)
+apps/ai-service/models/
+
+# Generated
+pnpm-lock.yaml

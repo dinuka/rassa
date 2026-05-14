@@ -1,0 +1,12 @@
+{
+  "name": "@rassa/ai-service",
+  "private": true,
+  "scripts": {
+    "postinstall": "uv sync",
+    "dev": "uv run uvicorn app.main:app --reload --port 8000",
+    "build": "true",
+    "lint": "uv run ruff check .",
+    "test": "uv run pytest",
+    "typecheck": "uv run mypy ."
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "@repo/auth",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint src/",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "^19.2.0"
+  },
+  "devDependencies": {
+    "@repo/tsconfig": "workspace:*",
+    "@types/react": "^19.2.0",
+    "typescript": "^6.0.3"
+  }
+}
