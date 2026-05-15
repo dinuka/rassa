@@ -1,5 +1,5 @@
 {
-  "name": "genai-saas",
+  "name": "rassa-saas",
   "private": true,
   "scripts": {
     "dev": "turbo dev",
