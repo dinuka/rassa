@@ -1,7 +1,9 @@
 import NextAuth from "next-auth";
+
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
-import { getClient } from "./mongodb";
+
 import { authConfig } from "./auth.config";
+import { getClient } from "./mongodb";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   ...authConfig,
@@ -10,10 +12,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async createUser({ user }) {
       const client = await getClient();
       const db = client.db();
-      await db.collection("users").updateOne(
-        { email: user.email },
-        { $set: { onboardingComplete: false, createdAt: new Date() } }
-      );
+      await db
+        .collection("users")
+        .updateOne(
+          { email: user.email },
+          { $set: { onboardingComplete: false, createdAt: new Date() } },
+        );
     },
   },
 });
@@ -23,15 +27,13 @@ declare module "next-auth" {
   interface Session {
     user: {
       id: string;
-      name?: string | null;
-      email?: string | null;
-      image?: string | null;
+      name?: string;
+      email?: string;
+      image?: string;
       provider?: string;
     };
   }
-}
 
-declare module "next-auth/jwt" {
   interface JWT {
     id?: string;
     provider?: string;

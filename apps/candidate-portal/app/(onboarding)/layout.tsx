@@ -1,26 +1,22 @@
-import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { getDatabase } from "@/lib/mongodb";
+
 import { Sparkles } from "lucide-react";
 
-export default function OnboardingLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+import { auth } from "@/lib/auth";
+import { getDatabase } from "@/lib/mongodb";
+
+export default function OnboardingLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-3">
-          <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center">
-            <Sparkles className="h-4 w-4 text-primary-foreground" />
+    <div className="bg-background min-h-screen">
+      <header className="border-border bg-card/50 sticky top-0 z-50 border-b backdrop-blur-sm">
+        <div className="mx-auto flex max-w-4xl items-center gap-3 px-4 py-4">
+          <div className="bg-primary flex h-9 w-9 items-center justify-center rounded-lg">
+            <Sparkles className="text-primary-foreground h-4 w-4" />
           </div>
-          <span className="text-lg font-semibold text-foreground">Rassa</span>
+          <span className="text-foreground text-lg font-semibold">Rassa</span>
         </div>
       </header>
-      <main className="max-w-4xl mx-auto px-4 py-8">
-        {children}
-      </main>
+      <main className="mx-auto max-w-4xl px-4 py-8">{children}</main>
     </div>
   );
 }

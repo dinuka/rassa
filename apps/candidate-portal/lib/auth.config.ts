@@ -2,11 +2,13 @@ import type { NextAuthConfig } from "next-auth";
 import Google from "next-auth/providers/google";
 import LinkedIn from "next-auth/providers/linkedin";
 
+import env from "./env";
+
 export const authConfig: NextAuthConfig = {
   providers: [
     Google({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: env.googleClientId,
+      clientSecret: env.googleClientSecret,
       authorization: {
         params: {
           prompt: "consent",
@@ -16,8 +18,8 @@ export const authConfig: NextAuthConfig = {
       },
     }),
     LinkedIn({
-      clientId: process.env.LINKEDIN_CLIENT_ID!,
-      clientSecret: process.env.LINKEDIN_CLIENT_SECRET!,
+      clientId: env.linkedinClientId,
+      clientSecret: env.linkedinClientSecret,
       authorization: {
         params: {
           scope: "openid profile email",

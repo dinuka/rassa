@@ -1,4 +1,5 @@
 import * as React from "react";
+
 import { cn } from "../lib/cn";
 
 interface ProgressProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -37,20 +38,20 @@ function Progress({
     <div className={cn("flex items-center gap-3", className)} {...props}>
       <div
         className={cn(
-          "relative w-full overflow-hidden rounded-full bg-secondary",
-          sizeClasses[size]
+          "bg-secondary relative w-full overflow-hidden rounded-full",
+          sizeClasses[size],
         )}
       >
         <div
           className={cn(
-            "h-full transition-all duration-300 ease-out rounded-full",
-            variantClasses[variant]
+            "h-full rounded-full transition-all duration-300 ease-out",
+            variantClasses[variant],
           )}
           style={{ width: `${percentage}%` }}
         />
       </div>
       {showValue && (
-        <span className="text-sm font-medium text-muted-foreground min-w-[3ch]">
+        <span className="text-muted-foreground min-w-[3ch] text-sm font-medium">
           {Math.round(percentage)}%
         </span>
       )}

@@ -1,127 +1,38 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Card, CardContent, CardHeader, CardTitle, Input, Badge } from "@repo/ui";
-import { Plus, X, Briefcase, GraduationCap, User, Wrench } from "lucide-react";
-import type { CV, Experience, Education } from "@repo/shared-types";
+
+import { Briefcase, GraduationCap, Plus, User, Wrench, X } from "lucide-react";
+
+import type { CV, Education, Experience } from "@repo/shared-types";
+import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Input } from "@repo/ui";
 
 interface CVFormStepProps {
-  initialData: Partial<CV> | null;
+  initialData: Partial<CV> | undefined;
   onUpdate: (data: Partial<CV>) => void;
   onNext: () => void;
   user: {
-    name?: string | null;
-    email?: string | null;
+    name?: string;
+    email?: string;
   };
 }
 
-export function CVFormStep({ initialData, onUpdate, onNext, user }: CVFormStepProps) {
-  const [activeSection, setActiveSection] = useState<"personal" | "experience" | "education" | "skills">("personal");
-  const [formData, setFormData] = useState<Partial<CV>>(
-    initialData || {
-      personalInfo: {
-        fullName: user.name || "",
-        email: user.email || "",
-        phone: "",
-        location: "",
-        title: "",
-        summary: "",
-      },
-      experience: [],
-      education: [],
-      skills: [],
-    }
-  );
-
-  const updateFormData = (updates: Partial<CV>) => {
-    const newData = { ...formData, ...updates };
-    setFormData(newData);
-    onUpdate(newData);
-  };
-
-  const sections = [
-    { id: "personal" as const, name: "Personal Info", icon: User },
-    { id: "experience" as const, name: "Experience", icon: Briefcase },
-    { id: "education" as const, name: "Education", icon: GraduationCap },
-    { id: "skills" as const, name: "Skills", icon: Wrench },
-  ];
-
-  return (
-    <div className="grid md:grid-cols-4 gap-6">
-      {/* Section Navigation */}
-      <div className="md:col-span-1">
-        <nav className="space-y-1">
-          {sections.map((section) => (
-            <button
-              key={section.id}
-              onClick={() => setActiveSection(section.id)}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
-                activeSection === section.id
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              }`}
-            >
-              <section.icon className="h-4 w-4" />
-              {section.name}
-            </button>
-          ))}
-        </nav>
-      </div>
-
-      {/* Section Content */}
-      <div className="md:col-span-3">
-        <Card>
-          <CardHeader>
-            <CardTitle>{sections.find((s) => s.id === activeSection)?.name}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {activeSection === "personal" && (
-              <PersonalInfoForm
-                data={formData.personalInfo}
-                onChange={(personalInfo) => updateFormData({ personalInfo })}
-              />
-            )}
-            {activeSection === "experience" && (
-              <ExperienceForm
-                data={formData.experience || []}
-                onChange={(experience) => updateFormData({ experience })}
-              />
-            )}
-            {activeSection === "education" && (
-              <EducationForm
-                data={formData.education || []}
-                onChange={(education) => updateFormData({ education })}
-              />
-            )}
-            {activeSection === "skills" && (
-              <SkillsForm
-                data={formData.skills || []}
-                onChange={(skills) => updateFormData({ skills })}
-              />
-            )}
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
-}
-
-function PersonalInfoForm({
+const PersonalInfoForm = ({
   data,
   onChange,
 }: {
   data?: CV["personalInfo"];
   onChange: (data: CV["personalInfo"]) => void;
-}) {
+}) => {
   const handleChange = (field: string, value: string) => {
     onChange({ ...data, [field]: value } as CV["personalInfo"]);
   };
 
   return (
     <div className="space-y-4">
-      <div className="grid md:grid-cols-2 gap-4">
+      <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <label className="text-sm font-medium text-foreground">Full Name</label>
+          <label className="text-foreground text-sm font-medium">Full Name</label>
           <Input
             value={data?.fullName || ""}
             onChange={(e) => handleChange("fullName", e.target.value)}
@@ -129,7 +40,7 @@ function PersonalInfoForm({
           />
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-medium text-foreground">Professional Title</label>
+          <label className="text-foreground text-sm font-medium">Professional Title</label>
           <Input
             value={data?.title || ""}
             onChange={(e) => handleChange("title", e.target.value)}
@@ -138,9 +49,9 @@ function PersonalInfoForm({
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-4">
+      <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <label className="text-sm font-medium text-foreground">Email</label>
+          <label className="text-foreground text-sm font-medium">Email</label>
           <Input
             type="email"
             value={data?.email || ""}
@@ -149,7 +60,7 @@ function PersonalInfoForm({
           />
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-medium text-foreground">Phone</label>
+          <label className="text-foreground text-sm font-medium">Phone</label>
           <Input
             value={data?.phone || ""}
             onChange={(e) => handleChange("phone", e.target.value)}
@@ -159,7 +70,7 @@ function PersonalInfoForm({
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium text-foreground">Location</label>
+        <label className="text-foreground text-sm font-medium">Location</label>
         <Input
           value={data?.location || ""}
           onChange={(e) => handleChange("location", e.target.value)}
@@ -168,25 +79,25 @@ function PersonalInfoForm({
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium text-foreground">Professional Summary</label>
+        <label className="text-foreground text-sm font-medium">Professional Summary</label>
         <textarea
           value={data?.summary || ""}
           onChange={(e) => handleChange("summary", e.target.value)}
           placeholder="Brief summary of your professional background and career objectives..."
-          className="flex min-h-[120px] w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-colors resize-none"
+          className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex min-h-[120px] w-full resize-none rounded-lg border px-3 py-2 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
         />
       </div>
     </div>
   );
-}
+};
 
-function ExperienceForm({
+const ExperienceForm = ({
   data,
   onChange,
 }: {
   data: Experience[];
   onChange: (data: Experience[]) => void;
-}) {
+}) => {
   const addExperience = () => {
     onChange([
       ...data,
@@ -217,17 +128,17 @@ function ExperienceForm({
   return (
     <div className="space-y-6">
       {data.map((exp, index) => (
-        <div key={exp.id} className="p-4 border border-border rounded-lg space-y-4 relative">
+        <div key={exp.id} className="border-border relative space-y-4 rounded-lg border p-4">
           <button
             onClick={() => removeExperience(index)}
-            className="absolute top-2 right-2 text-muted-foreground hover:text-destructive"
+            className="text-muted-foreground hover:text-destructive absolute top-2 right-2"
           >
             <X className="h-4 w-4" />
           </button>
 
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Company</label>
+              <label className="text-foreground text-sm font-medium">Company</label>
               <Input
                 value={exp.company}
                 onChange={(e) => updateExperience(index, { company: e.target.value })}
@@ -235,7 +146,7 @@ function ExperienceForm({
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Job Title</label>
+              <label className="text-foreground text-sm font-medium">Job Title</label>
               <Input
                 value={exp.title}
                 onChange={(e) => updateExperience(index, { title: e.target.value })}
@@ -244,9 +155,9 @@ function ExperienceForm({
             </div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Start Date</label>
+              <label className="text-foreground text-sm font-medium">Start Date</label>
               <Input
                 type="month"
                 value={exp.startDate}
@@ -254,7 +165,7 @@ function ExperienceForm({
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">End Date</label>
+              <label className="text-foreground text-sm font-medium">End Date</label>
               <Input
                 type="month"
                 value={exp.endDate || ""}
@@ -263,47 +174,47 @@ function ExperienceForm({
               />
             </div>
             <div className="flex items-end pb-2">
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex cursor-pointer items-center gap-2">
                 <input
                   type="checkbox"
                   checked={exp.current}
                   onChange={(e) =>
                     updateExperience(index, { current: e.target.checked, endDate: "" })
                   }
-                  className="rounded border-input"
+                  className="border-input rounded"
                 />
-                <span className="text-sm text-foreground">Current</span>
+                <span className="text-foreground text-sm">Current</span>
               </label>
             </div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Description</label>
+            <label className="text-foreground text-sm font-medium">Description</label>
             <textarea
               value={exp.description}
               onChange={(e) => updateExperience(index, { description: e.target.value })}
               placeholder="Describe your responsibilities and achievements..."
-              className="flex min-h-[80px] w-full rounded-lg border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+              className="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring flex min-h-[80px] w-full resize-none rounded-lg border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
             />
           </div>
         </div>
       ))}
 
       <Button variant="outline" onClick={addExperience} className="w-full">
-        <Plus className="h-4 w-4 mr-2" />
+        <Plus className="mr-2 h-4 w-4" />
         Add Experience
       </Button>
     </div>
   );
-}
+};
 
-function EducationForm({
+const EducationForm = ({
   data,
   onChange,
 }: {
   data: Education[];
   onChange: (data: Education[]) => void;
-}) {
+}) => {
   const addEducation = () => {
     onChange([
       ...data,
@@ -332,17 +243,17 @@ function EducationForm({
   return (
     <div className="space-y-6">
       {data.map((edu, index) => (
-        <div key={edu.id} className="p-4 border border-border rounded-lg space-y-4 relative">
+        <div key={edu.id} className="border-border relative space-y-4 rounded-lg border p-4">
           <button
             onClick={() => removeEducation(index)}
-            className="absolute top-2 right-2 text-muted-foreground hover:text-destructive"
+            className="text-muted-foreground hover:text-destructive absolute top-2 right-2"
           >
             <X className="h-4 w-4" />
           </button>
 
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Institution</label>
+              <label className="text-foreground text-sm font-medium">Institution</label>
               <Input
                 value={edu.institution}
                 onChange={(e) => updateEducation(index, { institution: e.target.value })}
@@ -350,7 +261,7 @@ function EducationForm({
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Degree</label>
+              <label className="text-foreground text-sm font-medium">Degree</label>
               <Input
                 value={edu.degree}
                 onChange={(e) => updateEducation(index, { degree: e.target.value })}
@@ -359,9 +270,9 @@ function EducationForm({
             </div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Field of Study</label>
+              <label className="text-foreground text-sm font-medium">Field of Study</label>
               <Input
                 value={edu.field}
                 onChange={(e) => updateEducation(index, { field: e.target.value })}
@@ -369,7 +280,7 @@ function EducationForm({
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">Start Year</label>
+              <label className="text-foreground text-sm font-medium">Start Year</label>
               <Input
                 type="number"
                 value={edu.startDate}
@@ -378,7 +289,7 @@ function EducationForm({
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">End Year</label>
+              <label className="text-foreground text-sm font-medium">End Year</label>
               <Input
                 type="number"
                 value={edu.endDate || ""}
@@ -391,20 +302,14 @@ function EducationForm({
       ))}
 
       <Button variant="outline" onClick={addEducation} className="w-full">
-        <Plus className="h-4 w-4 mr-2" />
+        <Plus className="mr-2 h-4 w-4" />
         Add Education
       </Button>
     </div>
   );
-}
+};
 
-function SkillsForm({
-  data,
-  onChange,
-}: {
-  data: string[];
-  onChange: (data: string[]) => void;
-}) {
+const SkillsForm = ({ data, onChange }: { data: string[]; onChange: (data: string[]) => void }) => {
   const [inputValue, setInputValue] = useState("");
 
   const addSkill = () => {
@@ -456,11 +361,11 @@ function SkillsForm({
       {data.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {data.map((skill) => (
-            <Badge key={skill} variant="secondary" className="pl-3 pr-2 py-1.5 gap-1">
+            <Badge key={skill} variant="secondary" className="gap-1 py-1.5 pr-2 pl-3">
               {skill}
               <button
                 onClick={() => removeSkill(skill)}
-                className="ml-1 text-muted-foreground hover:text-foreground"
+                className="text-muted-foreground hover:text-foreground ml-1"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -471,16 +376,16 @@ function SkillsForm({
 
       {suggestedSkills.length > 0 && (
         <div>
-          <p className="text-sm text-muted-foreground mb-2">Suggested skills:</p>
+          <p className="text-muted-foreground mb-2 text-sm">Suggested skills:</p>
           <div className="flex flex-wrap gap-2">
             {suggestedSkills.slice(0, 6).map((skill) => (
               <Badge
                 key={skill}
                 variant="outline"
-                className="cursor-pointer hover:bg-muted"
+                className="hover:bg-muted cursor-pointer"
                 onClick={() => onChange([...data, skill])}
               >
-                <Plus className="h-3 w-3 mr-1" />
+                <Plus className="mr-1 h-3 w-3" />
                 {skill}
               </Badge>
             ))}
@@ -489,4 +394,97 @@ function SkillsForm({
       )}
     </div>
   );
-}
+};
+
+const CVFormStep = ({ initialData, onUpdate, onNext, user }: CVFormStepProps) => {
+  const [activeSection, setActiveSection] = useState<
+    "personal" | "experience" | "education" | "skills"
+  >("personal");
+  const [formData, setFormData] = useState<Partial<CV>>(
+    initialData || {
+      personalInfo: {
+        fullName: user.name || "",
+        email: user.email || "",
+        phone: "",
+        location: "",
+        title: "",
+        summary: "",
+      },
+      experience: [],
+      education: [],
+      skills: [],
+    },
+  );
+
+  const updateFormData = (updates: Partial<CV>) => {
+    const newData = { ...formData, ...updates };
+    setFormData(newData);
+    onUpdate(newData);
+  };
+
+  const sections = [
+    { id: "personal" as const, name: "Personal Info", icon: User },
+    { id: "experience" as const, name: "Experience", icon: Briefcase },
+    { id: "education" as const, name: "Education", icon: GraduationCap },
+    { id: "skills" as const, name: "Skills", icon: Wrench },
+  ];
+
+  return (
+    <div className="grid gap-6 md:grid-cols-4">
+      <div className="md:col-span-1">
+        <nav className="space-y-1">
+          {sections.map((section) => (
+            <button
+              key={section.id}
+              onClick={() => setActiveSection(section.id)}
+              className={`flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left transition-colors ${
+                activeSection === section.id
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              }`}
+            >
+              <section.icon className="h-4 w-4" />
+              {section.name}
+            </button>
+          ))}
+        </nav>
+      </div>
+
+      <div className="md:col-span-3">
+        <Card>
+          <CardHeader>
+            <CardTitle>{sections.find((s) => s.id === activeSection)?.name}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {activeSection === "personal" && (
+              <PersonalInfoForm
+                data={formData.personalInfo}
+                onChange={(personalInfo) => updateFormData({ personalInfo })}
+              />
+            )}
+            {activeSection === "experience" && (
+              <ExperienceForm
+                data={formData.experience || []}
+                onChange={(experience) => updateFormData({ experience })}
+              />
+            )}
+            {activeSection === "education" && (
+              <EducationForm
+                data={formData.education || []}
+                onChange={(education) => updateFormData({ education })}
+              />
+            )}
+            {activeSection === "skills" && (
+              <SkillsForm
+                data={formData.skills || []}
+                onChange={(skills) => updateFormData({ skills })}
+              />
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export default CVFormStep;

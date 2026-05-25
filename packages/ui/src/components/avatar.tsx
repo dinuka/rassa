@@ -1,4 +1,5 @@
 import * as React from "react";
+
 import { cn } from "../lib/cn";
 
 interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -15,14 +16,7 @@ const sizeClasses = {
   xl: "h-16 w-16 text-lg",
 };
 
-function Avatar({
-  className,
-  src,
-  alt,
-  fallback,
-  size = "default",
-  ...props
-}: AvatarProps) {
+function Avatar({ className, src, alt, fallback, size = "default", ...props }: AvatarProps) {
   const [imageError, setImageError] = React.useState(false);
 
   const initials = React.useMemo(() => {
@@ -41,9 +35,9 @@ function Avatar({
   return (
     <div
       className={cn(
-        "relative flex shrink-0 overflow-hidden rounded-full bg-muted",
+        "bg-muted relative flex shrink-0 overflow-hidden rounded-full",
         sizeClasses[size],
-        className
+        className,
       )}
       {...props}
     >
@@ -55,7 +49,7 @@ function Avatar({
           onError={() => setImageError(true)}
         />
       ) : (
-        <span className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/20 to-primary/40 font-medium text-primary">
+        <span className="from-primary/20 to-primary/40 text-primary flex h-full w-full items-center justify-center bg-gradient-to-br font-medium">
           {initials}
         </span>
       )}

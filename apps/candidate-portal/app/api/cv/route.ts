@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { auth } from "@/lib/auth";
 import { getDatabase } from "@/lib/mongodb";
 
@@ -33,10 +34,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error creating CV:", error);
-    return NextResponse.json(
-      { error: "Failed to create CV" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to create CV" }, { status: 500 });
   }
 }
 
@@ -60,9 +58,6 @@ export async function GET() {
     return NextResponse.json({ cv });
   } catch (error) {
     console.error("Error fetching CV:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch CV" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch CV" }, { status: 500 });
   }
 }

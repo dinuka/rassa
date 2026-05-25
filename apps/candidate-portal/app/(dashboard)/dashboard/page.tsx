@@ -1,7 +1,9 @@
-import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
+
+import { auth } from "@/lib/auth";
 import { getDatabase } from "@/lib/mongodb";
-import { DashboardContent } from "./dashboard-content";
+
+import DashboardContent from "./DashboardContent";
 
 export const metadata = {
   title: "Dashboard - Rassa",
@@ -16,7 +18,7 @@ export default async function DashboardPage() {
   }
 
   const db = await getDatabase();
-  
+
   // Fetch user stats
   const [cv, applicationsCount, invitationsCount] = await Promise.all([
     db.collection("cvs").findOne({ userId: session.user.id, isActive: true }),

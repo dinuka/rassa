@@ -1,18 +1,19 @@
 "use client";
 
-import { Button, Card, CardContent, Badge } from "@repo/ui";
-import { Edit2, Mail, Phone, MapPin, Briefcase, GraduationCap } from "lucide-react";
+import { Briefcase, Edit2, GraduationCap, Mail, MapPin, Phone } from "lucide-react";
+
 import type { CV } from "@repo/shared-types";
+import { Badge, Button, Card, CardContent } from "@repo/ui";
 
 interface CVPreviewStepProps {
-  data: Partial<CV> | null;
+  data: Partial<CV> | undefined;
   onEdit: () => void;
 }
 
-export function CVPreviewStep({ data, onEdit }: CVPreviewStepProps) {
+const CVPreviewStep = ({ data, onEdit }: CVPreviewStepProps) => {
   if (!data) {
     return (
-      <Card className="max-w-2xl mx-auto">
+      <Card className="mx-auto max-w-2xl">
         <CardContent className="p-8 text-center">
           <p className="text-muted-foreground">No CV data to preview</p>
           <Button variant="outline" onClick={onEdit} className="mt-4">
@@ -26,26 +27,24 @@ export function CVPreviewStep({ data, onEdit }: CVPreviewStepProps) {
   const { personalInfo, experience, education, skills } = data;
 
   return (
-    <Card className="max-w-2xl mx-auto">
-      <CardContent className="p-8 space-y-8">
-        {/* Header with edit button */}
-        <div className="flex justify-between items-start">
+    <Card className="mx-auto max-w-2xl">
+      <CardContent className="space-y-8 p-8">
+        <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-foreground">
+            <h2 className="text-foreground text-2xl font-bold">
               {personalInfo?.fullName || "Your Name"}
             </h2>
             {personalInfo?.title && (
-              <p className="text-lg text-primary mt-1">{personalInfo.title}</p>
+              <p className="text-primary mt-1 text-lg">{personalInfo.title}</p>
             )}
           </div>
           <Button variant="outline" size="sm" onClick={onEdit}>
-            <Edit2 className="h-4 w-4 mr-2" />
+            <Edit2 className="mr-2 h-4 w-4" />
             Edit
           </Button>
         </div>
 
-        {/* Contact Info */}
-        <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+        <div className="text-muted-foreground flex flex-wrap gap-4 text-sm">
           {personalInfo?.email && (
             <div className="flex items-center gap-1.5">
               <Mail className="h-4 w-4" />
@@ -66,39 +65,35 @@ export function CVPreviewStep({ data, onEdit }: CVPreviewStepProps) {
           )}
         </div>
 
-        {/* Summary */}
         {personalInfo?.summary && (
           <div>
-            <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-2">
+            <h3 className="text-foreground mb-2 text-sm font-semibold tracking-wider uppercase">
               Summary
             </h3>
             <p className="text-muted-foreground">{personalInfo.summary}</p>
           </div>
         )}
 
-        {/* Experience */}
         {experience && experience.length > 0 && (
           <div>
-            <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
+            <h3 className="text-foreground mb-4 flex items-center gap-2 text-sm font-semibold tracking-wider uppercase">
               <Briefcase className="h-4 w-4" />
               Experience
             </h3>
             <div className="space-y-4">
               {experience.map((exp) => (
-                <div key={exp.id} className="border-l-2 border-border pl-4">
-                  <div className="flex justify-between items-start">
+                <div key={exp.id} className="border-border border-l-2 pl-4">
+                  <div className="flex items-start justify-between">
                     <div>
-                      <h4 className="font-medium text-foreground">{exp.title}</h4>
+                      <h4 className="text-foreground font-medium">{exp.title}</h4>
                       <p className="text-primary">{exp.company}</p>
                     </div>
-                    <span className="text-sm text-muted-foreground">
+                    <span className="text-muted-foreground text-sm">
                       {exp.startDate} - {exp.current ? "Present" : exp.endDate}
                     </span>
                   </div>
                   {exp.description && (
-                    <p className="text-sm text-muted-foreground mt-2">
-                      {exp.description}
-                    </p>
+                    <p className="text-muted-foreground mt-2 text-sm">{exp.description}</p>
                   )}
                 </div>
               ))}
@@ -106,24 +101,23 @@ export function CVPreviewStep({ data, onEdit }: CVPreviewStepProps) {
           </div>
         )}
 
-        {/* Education */}
         {education && education.length > 0 && (
           <div>
-            <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
+            <h3 className="text-foreground mb-4 flex items-center gap-2 text-sm font-semibold tracking-wider uppercase">
               <GraduationCap className="h-4 w-4" />
               Education
             </h3>
             <div className="space-y-4">
               {education.map((edu) => (
-                <div key={edu.id} className="border-l-2 border-border pl-4">
-                  <div className="flex justify-between items-start">
+                <div key={edu.id} className="border-border border-l-2 pl-4">
+                  <div className="flex items-start justify-between">
                     <div>
-                      <h4 className="font-medium text-foreground">
+                      <h4 className="text-foreground font-medium">
                         {edu.degree} in {edu.field}
                       </h4>
                       <p className="text-primary">{edu.institution}</p>
                     </div>
-                    <span className="text-sm text-muted-foreground">
+                    <span className="text-muted-foreground text-sm">
                       {edu.startDate} - {edu.endDate}
                     </span>
                   </div>
@@ -133,10 +127,9 @@ export function CVPreviewStep({ data, onEdit }: CVPreviewStepProps) {
           </div>
         )}
 
-        {/* Skills */}
         {skills && skills.length > 0 && (
           <div>
-            <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-3">
+            <h3 className="text-foreground mb-3 text-sm font-semibold tracking-wider uppercase">
               Skills
             </h3>
             <div className="flex flex-wrap gap-2">
@@ -149,13 +142,16 @@ export function CVPreviewStep({ data, onEdit }: CVPreviewStepProps) {
           </div>
         )}
 
-        {/* Completion message */}
-        <div className="pt-4 border-t border-border text-center">
-          <p className="text-sm text-muted-foreground">
-            Your CV looks great! Click <span className="text-foreground font-medium">Complete Setup</span> to start exploring opportunities.
+        <div className="border-border border-t pt-4 text-center">
+          <p className="text-muted-foreground text-sm">
+            Your CV looks great! Click{" "}
+            <span className="text-foreground font-medium">Complete Setup</span> to start exploring
+            opportunities.
           </p>
         </div>
       </CardContent>
     </Card>
   );
-}
+};
+
+export default CVPreviewStep;

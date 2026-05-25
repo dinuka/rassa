@@ -1,23 +1,25 @@
 "use client";
 
+import { useState } from "react";
+
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cn } from "@repo/ui";
+
 import {
-  LayoutDashboard,
   Briefcase,
-  FileText,
-  User,
-  Mail,
-  Wrench,
   ChevronLeft,
   ChevronRight,
-  Sparkles,
+  FileText,
+  LayoutDashboard,
   LogOut,
-  Settings,
+  Mail,
+  Sparkles,
+  User,
+  Wrench,
 } from "lucide-react";
-import { useState } from "react";
-import { signOut, useSession } from "next-auth/react";
+
+import { cn } from "@repo/ui";
 import { Avatar, Button, Separator } from "@repo/ui";
 
 const navigation = [
@@ -29,7 +31,7 @@ const navigation = [
   { name: "AI Tools", href: "/dashboard/tools", icon: Wrench },
 ];
 
-export function Sidebar() {
+const Sidebar = () => {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const { data: session } = useSession();
@@ -37,24 +39,18 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "flex flex-col h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300",
-        collapsed ? "w-[72px]" : "w-64"
+        "bg-sidebar border-sidebar-border flex h-screen flex-col border-r transition-all duration-300",
+        collapsed ? "w-[72px]" : "w-64",
       )}
     >
-      {/* Logo */}
-      <div className="flex items-center gap-3 px-4 h-16 border-b border-sidebar-border">
-        <div className="h-9 w-9 rounded-lg bg-sidebar-primary flex items-center justify-center flex-shrink-0">
-          <Sparkles className="h-5 w-5 text-sidebar-primary-foreground" />
+      <div className="border-sidebar-border flex h-16 items-center gap-3 border-b px-4">
+        <div className="bg-sidebar-primary flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg">
+          <Sparkles className="text-sidebar-primary-foreground h-5 w-5" />
         </div>
-        {!collapsed && (
-          <span className="text-lg font-semibold text-sidebar-foreground">
-            Rassa
-          </span>
-        )}
+        {!collapsed && <span className="text-sidebar-foreground text-lg font-semibold">Rassa</span>}
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+      <nav className="flex-1 space-y-1 overflow-y-auto p-3">
         {navigation.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
           return (
@@ -62,52 +58,46 @@ export function Sidebar() {
               key={item.name}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group",
+                "group flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors",
                 isActive
                   ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                  : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                  : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground",
               )}
             >
-              <item.icon className={cn("h-5 w-5 flex-shrink-0", isActive && "text-sidebar-primary")} />
+              <item.icon
+                className={cn("h-5 w-5 flex-shrink-0", isActive && "text-sidebar-primary")}
+              />
               {!collapsed && <span className="font-medium">{item.name}</span>}
             </Link>
           );
         })}
       </nav>
 
-      {/* Collapse Toggle */}
-      <div className="p-3 border-t border-sidebar-border">
+      <div className="border-sidebar-border border-t p-3">
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="flex items-center justify-center w-full px-3 py-2 rounded-lg text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-colors"
+          className="text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground flex w-full items-center justify-center rounded-lg px-3 py-2 transition-colors"
         >
           {collapsed ? (
             <ChevronRight className="h-5 w-5" />
           ) : (
             <>
-              <ChevronLeft className="h-5 w-5 mr-2" />
+              <ChevronLeft className="mr-2 h-5 w-5" />
               <span className="text-sm">Collapse</span>
             </>
           )}
         </button>
       </div>
 
-      {/* User Section */}
-      <div className="p-3 border-t border-sidebar-border">
+      <div className="border-sidebar-border border-t p-3">
         {!collapsed ? (
           <div className="flex items-center gap-3 px-2 py-2">
-            <Avatar
-              src={session?.user?.image}
-              alt={session?.user?.name || "User"}
-              size="sm"
-            />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-sidebar-foreground truncate">
+            <Avatar src={session?.user?.image} alt={session?.user?.name || "User"} size="sm" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sidebar-foreground truncate text-sm font-medium">
                 {session?.user?.name || "User"}
               </p>
-              <p className="text-xs text-sidebar-foreground/60 truncate">
-                {session?.user?.email}
-              </p>
+              <p className="text-sidebar-foreground/60 truncate text-xs">{session?.user?.email}</p>
             </div>
             <button
               onClick={() => signOut({ callbackUrl: "/signin" })}
@@ -120,7 +110,7 @@ export function Sidebar() {
         ) : (
           <button
             onClick={() => signOut({ callbackUrl: "/signin" })}
-            className="flex items-center justify-center w-full px-3 py-2 rounded-lg text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-colors"
+            className="text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground flex w-full items-center justify-center rounded-lg px-3 py-2 transition-colors"
             title="Sign out"
           >
             <LogOut className="h-5 w-5" />
@@ -129,4 +119,6 @@ export function Sidebar() {
       </div>
     </aside>
   );
-}
+};
+
+export default Sidebar;

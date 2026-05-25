@@ -1,38 +1,27 @@
 "use client";
 
 import { useState } from "react";
+
 import Link from "next/link";
+
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Button,
-  Input,
-  Badge,
-  Progress,
-  Separator,
-} from "@repo/ui";
-import {
-  Search,
-  Filter,
-  MapPin,
+  Bookmark,
+  BookmarkCheck,
   Building2,
   Clock,
   DollarSign,
-  Bookmark,
-  BookmarkCheck,
-  ExternalLink,
-  SlidersHorizontal,
   Grid3X3,
-  List,
-  ChevronDown,
-  Sparkles,
   Link as LinkIcon,
+  List,
+  MapPin,
+  Search,
+  Sparkles,
 } from "lucide-react";
-import { ExternalJobMatcher } from "./external-job-matcher";
 
-// Mock job data
+import { Badge, Button, Card, CardContent, Input, Progress } from "@repo/ui";
+
+import ExternalJobMatcher from "./ExternalJobMatcher";
+
 const mockJobs = [
   {
     id: "1",
@@ -114,7 +103,7 @@ const mockJobs = [
 type ViewMode = "grid" | "list";
 type SortOption = "match" | "date" | "salary";
 
-export function JobsContent() {
+const JobsContent = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [sortBy, setSortBy] = useState<SortOption>("match");
@@ -172,26 +161,22 @@ export function JobsContent() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Job Matches</h1>
-          <p className="text-muted-foreground">
-            {filteredJobs.length} jobs match your profile
-          </p>
+          <h1 className="text-foreground text-2xl font-bold">Job Matches</h1>
+          <p className="text-muted-foreground">{filteredJobs.length} jobs match your profile</p>
         </div>
         <Button onClick={() => setShowExternalMatcher(true)} variant="outline">
-          <LinkIcon className="h-4 w-4 mr-2" />
+          <LinkIcon className="mr-2 h-4 w-4" />
           Match External Job
         </Button>
       </div>
 
-      {/* Search and Filters */}
       <Card>
         <CardContent className="p-4">
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col gap-4 md:flex-row">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
               <Input
                 type="search"
                 placeholder="Search by title, company, or skill..."
@@ -206,19 +191,19 @@ export function JobsContent() {
                 size="sm"
                 onClick={() => setFilterRemote(!filterRemote)}
               >
-                <MapPin className="h-4 w-4 mr-1" />
+                <MapPin className="mr-1 h-4 w-4" />
                 Remote
               </Button>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className="h-9 px-3 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                className="border-input bg-background focus:ring-ring h-9 rounded-lg border px-3 text-sm focus:ring-2 focus:outline-none"
               >
                 <option value="match">Best Match</option>
                 <option value="date">Most Recent</option>
                 <option value="salary">Highest Salary</option>
               </select>
-              <div className="flex border border-input rounded-lg overflow-hidden">
+              <div className="border-input flex overflow-hidden rounded-lg border">
                 <button
                   onClick={() => setViewMode("list")}
                   className={`p-2 ${viewMode === "list" ? "bg-muted" : "hover:bg-muted/50"}`}
@@ -235,9 +220,8 @@ export function JobsContent() {
             </div>
           </div>
 
-          {/* Match Score Filter */}
           <div className="mt-4 flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">Min match:</span>
+            <span className="text-muted-foreground text-sm">Min match:</span>
             <div className="flex gap-2">
               {[0, 70, 80, 90].map((score) => (
                 <Button
@@ -254,37 +238,28 @@ export function JobsContent() {
         </CardContent>
       </Card>
 
-      {/* Job List */}
       <div className={viewMode === "grid" ? "grid gap-4 md:grid-cols-2" : "space-y-4"}>
         {filteredJobs.map((job) => (
-          <Card
-            key={job.id}
-            className="hover:border-primary/50 transition-colors overflow-hidden"
-          >
-            <CardContent className={viewMode === "grid" ? "p-5" : "p-5"}>
+          <Card key={job.id} className="hover:border-primary/50 overflow-hidden transition-colors">
+            <CardContent className="p-5">
               <div className="flex gap-4">
-                {/* Company Logo Placeholder */}
-                <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
-                  <Building2 className="h-6 w-6 text-muted-foreground" />
+                <div className="bg-muted flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg">
+                  <Building2 className="text-muted-foreground h-6 w-6" />
                 </div>
 
-                {/* Job Info */}
-                <div className="flex-1 min-w-0">
+                <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <Link
                         href={`/dashboard/jobs/${job.id}`}
-                        className="font-semibold text-foreground hover:text-primary transition-colors"
+                        className="text-foreground hover:text-primary font-semibold transition-colors"
                       >
                         {job.title}
                       </Link>
-                      <p className="text-sm text-muted-foreground">
-                        {job.company}
-                      </p>
+                      <p className="text-muted-foreground text-sm">{job.company}</p>
                     </div>
 
-                    {/* Match Score */}
-                    <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="flex flex-shrink-0 items-center gap-2">
                       <div className="text-right">
                         <div className="flex items-center gap-2">
                           <Progress
@@ -295,11 +270,11 @@ export function JobsContent() {
                               job.matchScore >= 90
                                 ? "success"
                                 : job.matchScore >= 80
-                                ? "default"
-                                : "warning"
+                                  ? "default"
+                                  : "warning"
                             }
                           />
-                          <span className="text-sm font-semibold text-foreground w-10">
+                          <span className="text-foreground w-10 text-sm font-semibold">
                             {job.matchScore}%
                           </span>
                         </div>
@@ -309,7 +284,7 @@ export function JobsContent() {
                         className="text-muted-foreground hover:text-primary transition-colors"
                       >
                         {savedJobs.has(job.id) ? (
-                          <BookmarkCheck className="h-5 w-5 text-primary" />
+                          <BookmarkCheck className="text-primary h-5 w-5" />
                         ) : (
                           <Bookmark className="h-5 w-5" />
                         )}
@@ -317,8 +292,7 @@ export function JobsContent() {
                     </div>
                   </div>
 
-                  {/* Meta Info */}
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-sm text-muted-foreground">
+                  <div className="text-muted-foreground mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
                     <span className="flex items-center gap-1">
                       <MapPin className="h-3.5 w-3.5" />
                       {job.location}
@@ -338,7 +312,6 @@ export function JobsContent() {
                     )}
                   </div>
 
-                  {/* Skills */}
                   <div className="mt-3 flex flex-wrap gap-1.5">
                     {job.matchedSkills.map((skill) => (
                       <Badge key={skill} variant="default" className="text-xs">
@@ -346,13 +319,16 @@ export function JobsContent() {
                       </Badge>
                     ))}
                     {job.missingSkills.map((skill) => (
-                      <Badge key={skill} variant="outline" className="text-xs text-muted-foreground">
+                      <Badge
+                        key={skill}
+                        variant="outline"
+                        className="text-muted-foreground text-xs"
+                      >
                         {skill}
                       </Badge>
                     ))}
                   </div>
 
-                  {/* Actions */}
                   <div className="mt-4 flex gap-2">
                     <Button size="sm" asChild>
                       <Link href={`/dashboard/jobs/${job.id}`}>View Details</Link>
@@ -371,19 +347,16 @@ export function JobsContent() {
       {filteredJobs.length === 0 && (
         <Card>
           <CardContent className="py-12 text-center">
-            <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-foreground">No jobs found</h3>
-            <p className="text-muted-foreground mt-1">
-              Try adjusting your search or filters
-            </p>
+            <Search className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+            <h3 className="text-foreground text-lg font-semibold">No jobs found</h3>
+            <p className="text-muted-foreground mt-1">Try adjusting your search or filters</p>
           </CardContent>
         </Card>
       )}
 
-      {/* External Job Matcher Modal */}
-      {showExternalMatcher && (
-        <ExternalJobMatcher onClose={() => setShowExternalMatcher(false)} />
-      )}
+      {showExternalMatcher && <ExternalJobMatcher onClose={() => setShowExternalMatcher(false)} />}
     </div>
   );
-}
+};
+
+export default JobsContent;

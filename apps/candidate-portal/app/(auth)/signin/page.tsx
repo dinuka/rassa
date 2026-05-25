@@ -1,7 +1,10 @@
-import { AuthButtons } from "./auth-buttons";
-import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { Sparkles, Target, FileText, Brain } from "lucide-react";
+
+import { Brain, FileText, Sparkles, Target } from "lucide-react";
+
+import { auth } from "@/lib/auth";
+
+import AuthButtons from "./AuthButtons";
 
 export const metadata = {
   title: "Sign In - Rassa",
@@ -16,27 +19,28 @@ export default async function SignInPage() {
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div className="flex min-h-screen">
       {/* Left side - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary/10 via-background to-background p-12 flex-col justify-between relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent" />
-        
+      <div className="from-primary/10 via-background to-background relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br p-12 lg:flex lg:w-1/2">
+        <div className="from-primary/5 absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] via-transparent to-transparent" />
+
         <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">
-              <Sparkles className="h-5 w-5 text-primary-foreground" />
+          <div className="mb-2 flex items-center gap-3">
+            <div className="bg-primary flex h-10 w-10 items-center justify-center rounded-xl">
+              <Sparkles className="text-primary-foreground h-5 w-5" />
             </div>
-            <span className="text-2xl font-bold text-foreground">Rassa</span>
+            <span className="text-foreground text-2xl font-bold">Rassa</span>
           </div>
           <p className="text-muted-foreground text-sm">AI-Powered Career Platform</p>
         </div>
 
         <div className="relative z-10 space-y-8">
-          <h1 className="text-4xl font-bold text-foreground leading-tight text-balance">
-            Your career journey,<br />
+          <h1 className="text-foreground text-4xl leading-tight font-bold text-balance">
+            Your career journey,
+            <br />
             <span className="text-primary">powered by AI</span>
           </h1>
-          
+
           <div className="space-y-6">
             <FeatureItem
               icon={<Target className="h-5 w-5" />}
@@ -56,32 +60,30 @@ export default async function SignInPage() {
           </div>
         </div>
 
-        <div className="relative z-10 text-sm text-muted-foreground">
+        <div className="text-muted-foreground relative z-10 text-sm">
           Trusted by thousands of job seekers worldwide
         </div>
       </div>
 
       {/* Right side - Auth Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
+      <div className="flex w-full items-center justify-center p-8 lg:w-1/2">
         <div className="w-full max-w-md space-y-8">
           {/* Mobile logo */}
-          <div className="lg:hidden flex items-center gap-3 justify-center mb-8">
-            <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">
-              <Sparkles className="h-5 w-5 text-primary-foreground" />
+          <div className="mb-8 flex items-center justify-center gap-3 lg:hidden">
+            <div className="bg-primary flex h-10 w-10 items-center justify-center rounded-xl">
+              <Sparkles className="text-primary-foreground h-5 w-5" />
             </div>
-            <span className="text-2xl font-bold text-foreground">Rassa</span>
+            <span className="text-foreground text-2xl font-bold">Rassa</span>
           </div>
 
           <div className="text-center lg:text-left">
-            <h2 className="text-2xl font-bold text-foreground">Welcome back</h2>
-            <p className="mt-2 text-muted-foreground">
-              Sign in to continue to your dashboard
-            </p>
+            <h2 className="text-foreground text-2xl font-bold">Welcome back</h2>
+            <p className="text-muted-foreground mt-2">Sign in to continue to your dashboard</p>
           </div>
 
           <AuthButtons />
 
-          <p className="text-center text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-center text-xs">
             By continuing, you agree to our{" "}
             <a href="/terms" className="text-primary hover:underline">
               Terms of Service
@@ -97,7 +99,7 @@ export default async function SignInPage() {
   );
 }
 
-function FeatureItem({
+const FeatureItem = ({
   icon,
   title,
   description,
@@ -105,16 +107,14 @@ function FeatureItem({
   icon: React.ReactNode;
   title: string;
   description: string;
-}) {
-  return (
-    <div className="flex items-start gap-4">
-      <div className="flex-shrink-0 h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-        {icon}
-      </div>
-      <div>
-        <h3 className="font-medium text-foreground">{title}</h3>
-        <p className="text-sm text-muted-foreground">{description}</p>
-      </div>
+}) => (
+  <div className="flex items-start gap-4">
+    <div className="bg-primary/10 text-primary flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg">
+      {icon}
     </div>
-  );
-}
+    <div>
+      <h3 className="text-foreground font-medium">{title}</h3>
+      <p className="text-muted-foreground text-sm">{description}</p>
+    </div>
+  </div>
+);

@@ -1,7 +1,9 @@
-import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
+
+import { auth } from "@/lib/auth";
 import { getDatabase } from "@/lib/mongodb";
-import { SetupWizard } from "./setup-wizard";
+
+import SetupWizard from "./SetupWizard";
 
 export const metadata = {
   title: "Setup Your Profile - Rassa",
@@ -25,8 +27,8 @@ export default async function SetupPage() {
 
   return (
     <div className="space-y-8">
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold text-foreground">
+      <div className="space-y-2 text-center">
+        <h1 className="text-foreground text-3xl font-bold">
           Welcome, {session.user.name?.split(" ")[0] || "there"}!
         </h1>
         <p className="text-muted-foreground text-lg">

@@ -1,47 +1,47 @@
 "use client";
 
 import { useState } from "react";
+
 import {
+  Briefcase,
+  Download,
+  Edit2,
+  Eye,
+  GraduationCap,
+  Mail,
+  MapPin,
+  Phone,
+  Plus,
+  Sparkles,
+  Upload,
+  X,
+} from "lucide-react";
+
+import type { CV, Education, Experience } from "@repo/shared-types";
+import {
+  Avatar,
+  Badge,
+  Button,
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
-  Button,
-  Badge,
   Input,
-  Avatar,
   Progress,
   Separator,
 } from "@repo/ui";
-import {
-  Edit2,
-  Save,
-  X,
-  Plus,
-  Mail,
-  Phone,
-  MapPin,
-  Briefcase,
-  GraduationCap,
-  Download,
-  Upload,
-  Eye,
-  Sparkles,
-} from "lucide-react";
-import type { CV } from "@repo/shared-types";
 
 interface ProfileContentProps {
   user: {
     id: string;
-    name?: string | null;
-    email?: string | null;
-    image?: string | null;
+    name?: string;
+    email?: string;
+    image?: string;
   };
-  cv: CV | null;
+  cv: CV | undefined;
 }
 
-// Mock CV data if none exists
 const mockCV: CV = {
   id: "1",
   userId: "1",
@@ -53,7 +53,8 @@ const mockCV: CV = {
     phone: "+1 (555) 123-4567",
     location: "San Francisco, CA",
     title: "Senior Frontend Engineer",
-    summary: "Experienced software engineer with 8+ years of expertise in building scalable web applications. Passionate about creating intuitive user experiences and mentoring junior developers. Strong background in React, TypeScript, and modern frontend technologies.",
+    summary:
+      "Experienced software engineer with 8+ years of expertise in building scalable web applications. Passionate about creating intuitive user experiences and mentoring junior developers. Strong background in React, TypeScript, and modern frontend technologies.",
   },
   experience: [
     {
@@ -64,7 +65,8 @@ const mockCV: CV = {
       startDate: "2021-03",
       endDate: "",
       current: true,
-      description: "Leading frontend development for the core product team. Architected and implemented a new design system used across 5 products.",
+      description:
+        "Leading frontend development for the core product team. Architected and implemented a new design system used across 5 products.",
       highlights: ["Led team of 4 engineers", "Improved performance by 40%"],
     },
     {
@@ -90,47 +92,52 @@ const mockCV: CV = {
       gpa: "3.8",
     },
   ],
-  skills: ["React", "TypeScript", "Node.js", "GraphQL", "AWS", "Docker", "Git", "Agile", "Team Leadership"],
+  skills: [
+    "React",
+    "TypeScript",
+    "Node.js",
+    "GraphQL",
+    "AWS",
+    "Docker",
+    "Git",
+    "Agile",
+    "Team Leadership",
+  ],
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
 };
 
-export function ProfileContent({ user, cv: serverCV }: ProfileContentProps) {
+const ProfileContent = ({ user, cv: serverCV }: ProfileContentProps) => {
   const [cv] = useState<CV>(serverCV || mockCV);
   const [isEditing, setIsEditing] = useState(false);
 
-  const profileStrength = 85; // Calculate based on filled fields
+  const profileStrength = 85;
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">My Profile</h1>
-          <p className="text-muted-foreground">
-            Manage your CV and professional information
-          </p>
+          <h1 className="text-foreground text-2xl font-bold">My Profile</h1>
+          <p className="text-muted-foreground">Manage your CV and professional information</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline">
-            <Eye className="h-4 w-4 mr-2" />
+            <Eye className="mr-2 h-4 w-4" />
             Preview
           </Button>
           <Button variant="outline">
-            <Download className="h-4 w-4 mr-2" />
+            <Download className="mr-2 h-4 w-4" />
             Download PDF
           </Button>
           <Button>
-            <Upload className="h-4 w-4 mr-2" />
+            <Upload className="mr-2 h-4 w-4" />
             Update CV
           </Button>
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Personal Info */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="space-y-6 lg:col-span-2">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Personal Information</CardTitle>
@@ -140,20 +147,16 @@ export function ProfileContent({ user, cv: serverCV }: ProfileContentProps) {
             </CardHeader>
             <CardContent>
               <div className="flex items-start gap-6">
-                <Avatar
-                  src={user.image}
-                  alt={cv.personalInfo.fullName}
-                  size="xl"
-                />
+                <Avatar src={user.image} alt={cv.personalInfo.fullName} size="xl" />
                 <div className="flex-1 space-y-4">
                   <div>
-                    <h2 className="text-xl font-bold text-foreground">
+                    <h2 className="text-foreground text-xl font-bold">
                       {cv.personalInfo.fullName}
                     </h2>
-                    <p className="text-lg text-primary">{cv.personalInfo.title}</p>
+                    <p className="text-primary text-lg">{cv.personalInfo.title}</p>
                   </div>
 
-                  <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                  <div className="text-muted-foreground flex flex-wrap gap-4 text-sm">
                     <span className="flex items-center gap-1.5">
                       <Mail className="h-4 w-4" />
                       {cv.personalInfo.email}
@@ -174,11 +177,10 @@ export function ProfileContent({ user, cv: serverCV }: ProfileContentProps) {
             </CardContent>
           </Card>
 
-          {/* Experience */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div className="flex items-center gap-2">
-                <Briefcase className="h-5 w-5 text-muted-foreground" />
+                <Briefcase className="text-muted-foreground h-5 w-5" />
                 <CardTitle>Experience</CardTitle>
               </div>
               <Button variant="ghost" size="sm">
@@ -186,15 +188,16 @@ export function ProfileContent({ user, cv: serverCV }: ProfileContentProps) {
               </Button>
             </CardHeader>
             <CardContent className="space-y-6">
-              {cv.experience.map((exp, index) => (
+              {cv.experience.map((exp: Experience, index: number) => (
                 <div key={exp.id}>
                   {index > 0 && <Separator className="mb-6" />}
-                  <div className="flex justify-between items-start">
+                  <div className="flex items-start justify-between">
                     <div>
-                      <h4 className="font-semibold text-foreground">{exp.title}</h4>
+                      <h4 className="text-foreground font-semibold">{exp.title}</h4>
                       <p className="text-primary">{exp.company}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {exp.location} &middot; {exp.startDate} - {exp.current ? "Present" : exp.endDate}
+                      <p className="text-muted-foreground text-sm">
+                        {exp.location} &middot; {exp.startDate} -{" "}
+                        {exp.current ? "Present" : exp.endDate}
                       </p>
                     </div>
                     <Button variant="ghost" size="sm">
@@ -205,7 +208,10 @@ export function ProfileContent({ user, cv: serverCV }: ProfileContentProps) {
                   {exp.highlights && exp.highlights.length > 0 && (
                     <ul className="mt-2 space-y-1">
                       {exp.highlights.map((highlight, i) => (
-                        <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
+                        <li
+                          key={i}
+                          className="text-muted-foreground flex items-start gap-2 text-sm"
+                        >
                           <span className="text-primary">•</span>
                           {highlight}
                         </li>
@@ -217,11 +223,10 @@ export function ProfileContent({ user, cv: serverCV }: ProfileContentProps) {
             </CardContent>
           </Card>
 
-          {/* Education */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div className="flex items-center gap-2">
-                <GraduationCap className="h-5 w-5 text-muted-foreground" />
+                <GraduationCap className="text-muted-foreground h-5 w-5" />
                 <CardTitle>Education</CardTitle>
               </div>
               <Button variant="ghost" size="sm">
@@ -229,14 +234,14 @@ export function ProfileContent({ user, cv: serverCV }: ProfileContentProps) {
               </Button>
             </CardHeader>
             <CardContent className="space-y-4">
-              {cv.education.map((edu) => (
-                <div key={edu.id} className="flex justify-between items-start">
+              {cv.education.map((edu: Education) => (
+                <div key={edu.id} className="flex items-start justify-between">
                   <div>
-                    <h4 className="font-semibold text-foreground">
+                    <h4 className="text-foreground font-semibold">
                       {edu.degree} in {edu.field}
                     </h4>
                     <p className="text-primary">{edu.institution}</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       {edu.startDate} - {edu.endDate}
                       {edu.gpa && ` • GPA: ${edu.gpa}`}
                     </p>
@@ -249,7 +254,6 @@ export function ProfileContent({ user, cv: serverCV }: ProfileContentProps) {
             </CardContent>
           </Card>
 
-          {/* Skills */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Skills</CardTitle>
@@ -269,9 +273,7 @@ export function ProfileContent({ user, cv: serverCV }: ProfileContentProps) {
           </Card>
         </div>
 
-        {/* Sidebar */}
         <div className="space-y-6">
-          {/* Profile Strength */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Profile Strength</CardTitle>
@@ -279,7 +281,7 @@ export function ProfileContent({ user, cv: serverCV }: ProfileContentProps) {
             <CardContent className="space-y-4">
               <div className="text-center">
                 <div className="relative inline-flex items-center justify-center">
-                  <svg className="w-24 h-24 transform -rotate-90">
+                  <svg className="h-24 w-24 -rotate-90 transform">
                     <circle
                       cx="48"
                       cy="48"
@@ -300,23 +302,23 @@ export function ProfileContent({ user, cv: serverCV }: ProfileContentProps) {
                       className="text-success"
                     />
                   </svg>
-                  <span className="absolute text-xl font-bold text-foreground">
+                  <span className="text-foreground absolute text-xl font-bold">
                     {profileStrength}%
                   </span>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   Complete these to improve your profile:
                 </p>
                 <ul className="space-y-2 text-sm">
-                  <li className="flex items-center gap-2 text-muted-foreground">
-                    <span className="h-1.5 w-1.5 rounded-full bg-warning" />
+                  <li className="text-muted-foreground flex items-center gap-2">
+                    <span className="bg-warning h-1.5 w-1.5 rounded-full" />
                     Add certifications
                   </li>
-                  <li className="flex items-center gap-2 text-muted-foreground">
-                    <span className="h-1.5 w-1.5 rounded-full bg-warning" />
+                  <li className="text-muted-foreground flex items-center gap-2">
+                    <span className="bg-warning h-1.5 w-1.5 rounded-full" />
                     Add portfolio links
                   </li>
                 </ul>
@@ -324,48 +326,48 @@ export function ProfileContent({ user, cv: serverCV }: ProfileContentProps) {
             </CardContent>
           </Card>
 
-          {/* AI Enhancement */}
           <Card className="bg-primary/5 border-primary/20">
             <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-primary" />
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Sparkles className="text-primary h-5 w-5" />
                 AI Enhancement
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Let AI analyze and improve your profile for better job matches.
               </p>
               <Button className="w-full">
-                <Sparkles className="h-4 w-4 mr-2" />
+                <Sparkles className="mr-2 h-4 w-4" />
                 Enhance with AI
               </Button>
             </CardContent>
           </Card>
 
-          {/* CV Versions */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">CV Versions</CardTitle>
               <CardDescription>Manage different versions of your CV</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+              <div className="bg-muted/50 flex items-center justify-between rounded-lg p-3">
                 <div>
-                  <p className="font-medium text-foreground text-sm">Main CV</p>
-                  <p className="text-xs text-muted-foreground">Updated 2 days ago</p>
+                  <p className="text-foreground text-sm font-medium">Main CV</p>
+                  <p className="text-muted-foreground text-xs">Updated 2 days ago</p>
                 </div>
                 <Badge>Active</Badge>
               </div>
-              <div className="flex items-center justify-between p-3 rounded-lg border border-border">
+              <div className="border-border flex items-center justify-between rounded-lg border p-3">
                 <div>
-                  <p className="font-medium text-foreground text-sm">Frontend Focus</p>
-                  <p className="text-xs text-muted-foreground">Tailored for frontend roles</p>
+                  <p className="text-foreground text-sm font-medium">Frontend Focus</p>
+                  <p className="text-muted-foreground text-xs">Tailored for frontend roles</p>
                 </div>
-                <Button variant="ghost" size="sm">Use</Button>
+                <Button variant="ghost" size="sm">
+                  Use
+                </Button>
               </div>
               <Button variant="outline" className="w-full">
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="mr-2 h-4 w-4" />
                 Create New Version
               </Button>
             </CardContent>
@@ -374,4 +376,6 @@ export function ProfileContent({ user, cv: serverCV }: ProfileContentProps) {
       </div>
     </div>
   );
-}
+};
+
+export default ProfileContent;

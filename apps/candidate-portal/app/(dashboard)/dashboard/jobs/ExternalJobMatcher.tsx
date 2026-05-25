@@ -1,18 +1,27 @@
 "use client";
 
 import { useState } from "react";
+
 import {
+  AlertCircle,
+  CheckCircle,
+  FileText,
+  Link as LinkIcon,
+  Loader2,
+  Target,
+  X,
+} from "lucide-react";
+
+import {
+  Badge,
+  Button,
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
-  Button,
   Input,
-  Progress,
-  Badge,
 } from "@repo/ui";
-import { X, Link as LinkIcon, FileText, Loader2, Target, CheckCircle, AlertCircle } from "lucide-react";
 
 interface ExternalJobMatcherProps {
   onClose: () => void;
@@ -25,23 +34,21 @@ interface MatchResult {
   recommendations: string[];
 }
 
-export function ExternalJobMatcher({ onClose }: ExternalJobMatcherProps) {
+const ExternalJobMatcher = ({ onClose }: ExternalJobMatcherProps) => {
   const [mode, setMode] = useState<"url" | "text">("url");
   const [jobUrl, setJobUrl] = useState("");
   const [jobDescription, setJobDescription] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [result, setResult] = useState<MatchResult | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<MatchResult | undefined>(undefined);
+  const [error, setError] = useState<string | undefined>(undefined);
 
   const handleAnalyze = async () => {
     setIsLoading(true);
-    setError(null);
+    setError(undefined);
 
     try {
-      // Mock API call - in real implementation, this would call the AI service
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      // Mock result
       setResult({
         matchScore: 78,
         matchedSkills: ["React", "TypeScript", "Node.js", "Git"],
@@ -52,7 +59,7 @@ export function ExternalJobMatcher({ onClose }: ExternalJobMatcherProps) {
           "Your React expertise aligns well with this role",
         ],
       });
-    } catch (err) {
+    } catch {
       setError("Failed to analyze job. Please try again.");
     } finally {
       setIsLoading(false);
@@ -60,15 +67,15 @@ export function ExternalJobMatcher({ onClose }: ExternalJobMatcherProps) {
   };
 
   const handleReset = () => {
-    setResult(null);
+    setResult(undefined);
     setJobUrl("");
     setJobDescription("");
-    setError(null);
+    setError(undefined);
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
-      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+    <div className="bg-background/80 fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+      <Card className="max-h-[90vh] w-full max-w-2xl overflow-y-auto">
         <CardHeader className="flex flex-row items-start justify-between">
           <div>
             <CardTitle>Match External Job</CardTitle>
@@ -87,14 +94,13 @@ export function ExternalJobMatcher({ onClose }: ExternalJobMatcherProps) {
         <CardContent className="space-y-6">
           {!result ? (
             <>
-              {/* Mode Toggle */}
               <div className="flex gap-2">
                 <Button
                   variant={mode === "url" ? "default" : "outline"}
                   size="sm"
                   onClick={() => setMode("url")}
                 >
-                  <LinkIcon className="h-4 w-4 mr-2" />
+                  <LinkIcon className="mr-2 h-4 w-4" />
                   Job URL
                 </Button>
                 <Button
@@ -102,50 +108,44 @@ export function ExternalJobMatcher({ onClose }: ExternalJobMatcherProps) {
                   size="sm"
                   onClick={() => setMode("text")}
                 >
-                  <FileText className="h-4 w-4 mr-2" />
+                  <FileText className="mr-2 h-4 w-4" />
                   Job Description
                 </Button>
               </div>
 
-              {/* Input */}
               {mode === "url" ? (
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-foreground">
-                    Job Posting URL
-                  </label>
+                  <label className="text-foreground text-sm font-medium">Job Posting URL</label>
                   <Input
                     type="url"
                     placeholder="https://linkedin.com/jobs/..."
                     value={jobUrl}
                     onChange={(e) => setJobUrl(e.target.value)}
                   />
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-muted-foreground text-xs">
                     Supports LinkedIn, Indeed, Glassdoor, and most job boards
                   </p>
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-foreground">
-                    Job Description
-                  </label>
+                  <label className="text-foreground text-sm font-medium">Job Description</label>
                   <textarea
                     placeholder="Paste the job description here..."
                     value={jobDescription}
                     onChange={(e) => setJobDescription(e.target.value)}
                     rows={8}
-                    className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
+                    className="border-input bg-background placeholder:text-muted-foreground focus-visible:ring-ring flex w-full resize-none rounded-lg border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
                   />
                 </div>
               )}
 
               {error && (
-                <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+                <div className="bg-destructive/10 text-destructive flex items-center gap-2 rounded-lg p-3 text-sm">
                   <AlertCircle className="h-4 w-4" />
                   {error}
                 </div>
               )}
 
-              {/* Analyze Button */}
               <Button
                 onClick={handleAnalyze}
                 disabled={isLoading || (mode === "url" ? !jobUrl : !jobDescription)}
@@ -153,12 +153,12 @@ export function ExternalJobMatcher({ onClose }: ExternalJobMatcherProps) {
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Analyzing...
                   </>
                 ) : (
                   <>
-                    <Target className="h-4 w-4 mr-2" />
+                    <Target className="mr-2 h-4 w-4" />
                     Analyze Match
                   </>
                 )}
@@ -166,10 +166,9 @@ export function ExternalJobMatcher({ onClose }: ExternalJobMatcherProps) {
             </>
           ) : (
             <>
-              {/* Match Result */}
-              <div className="text-center space-y-4">
+              <div className="space-y-4 text-center">
                 <div className="relative inline-flex items-center justify-center">
-                  <svg className="w-32 h-32 transform -rotate-90">
+                  <svg className="h-32 w-32 -rotate-90 transform">
                     <circle
                       cx="64"
                       cy="64"
@@ -191,12 +190,12 @@ export function ExternalJobMatcher({ onClose }: ExternalJobMatcherProps) {
                         result.matchScore >= 80
                           ? "text-success"
                           : result.matchScore >= 60
-                          ? "text-primary"
-                          : "text-warning"
+                            ? "text-primary"
+                            : "text-warning"
                       }
                     />
                   </svg>
-                  <span className="absolute text-3xl font-bold text-foreground">
+                  <span className="text-foreground absolute text-3xl font-bold">
                     {result.matchScore}%
                   </span>
                 </div>
@@ -204,16 +203,15 @@ export function ExternalJobMatcher({ onClose }: ExternalJobMatcherProps) {
                   {result.matchScore >= 80
                     ? "Great match! You're well-suited for this role."
                     : result.matchScore >= 60
-                    ? "Good match with some skill gaps to address."
-                    : "This role may require additional skills development."}
+                      ? "Good match with some skill gaps to address."
+                      : "This role may require additional skills development."}
                 </p>
               </div>
 
-              {/* Skills Analysis */}
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <h4 className="text-sm font-medium text-foreground flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-success" />
+                  <h4 className="text-foreground flex items-center gap-2 text-sm font-medium">
+                    <CheckCircle className="text-success h-4 w-4" />
                     Matching Skills
                   </h4>
                   <div className="flex flex-wrap gap-1.5">
@@ -226,8 +224,8 @@ export function ExternalJobMatcher({ onClose }: ExternalJobMatcherProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <h4 className="text-sm font-medium text-foreground flex items-center gap-2">
-                    <AlertCircle className="h-4 w-4 text-warning" />
+                  <h4 className="text-foreground flex items-center gap-2 text-sm font-medium">
+                    <AlertCircle className="text-warning h-4 w-4" />
                     Missing Skills
                   </h4>
                   <div className="flex flex-wrap gap-1.5">
@@ -240,17 +238,11 @@ export function ExternalJobMatcher({ onClose }: ExternalJobMatcherProps) {
                 </div>
               </div>
 
-              {/* Recommendations */}
               <div className="space-y-2">
-                <h4 className="text-sm font-medium text-foreground">
-                  Recommendations
-                </h4>
+                <h4 className="text-foreground text-sm font-medium">Recommendations</h4>
                 <ul className="space-y-2">
                   {result.recommendations.map((rec, i) => (
-                    <li
-                      key={i}
-                      className="text-sm text-muted-foreground flex items-start gap-2"
-                    >
+                    <li key={i} className="text-muted-foreground flex items-start gap-2 text-sm">
                       <span className="text-primary mt-1">•</span>
                       {rec}
                     </li>
@@ -258,7 +250,6 @@ export function ExternalJobMatcher({ onClose }: ExternalJobMatcherProps) {
                 </ul>
               </div>
 
-              {/* Actions */}
               <div className="flex gap-3">
                 <Button variant="outline" onClick={handleReset} className="flex-1">
                   Analyze Another
@@ -271,4 +262,6 @@ export function ExternalJobMatcher({ onClose }: ExternalJobMatcherProps) {
       </Card>
     </div>
   );
-}
+};
+
+export default ExternalJobMatcher;

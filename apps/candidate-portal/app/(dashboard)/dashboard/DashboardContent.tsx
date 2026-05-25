@@ -1,34 +1,36 @@
 "use client";
 
 import Link from "next/link";
+
 import {
+  ArrowRight,
+  Briefcase,
+  Building2,
+  Clock,
+  FileText,
+  Mail,
+  Sparkles,
+  Target,
+  TrendingUp,
+} from "lucide-react";
+
+import {
+  Badge,
+  Button,
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-  Button,
   Progress,
-  Badge,
 } from "@repo/ui";
-import {
-  Briefcase,
-  FileText,
-  Mail,
-  Target,
-  ArrowRight,
-  Sparkles,
-  TrendingUp,
-  Clock,
-  Building2,
-} from "lucide-react";
 
 interface DashboardContentProps {
   user: {
     id: string;
-    name?: string | null;
-    email?: string | null;
-    image?: string | null;
+    name?: string;
+    email?: string;
+    image?: string;
   };
   stats: {
     cvComplete: boolean;
@@ -38,7 +40,6 @@ interface DashboardContentProps {
   };
 }
 
-// Mock data for recent job matches
 const recentMatches = [
   {
     id: "1",
@@ -69,7 +70,6 @@ const recentMatches = [
   },
 ];
 
-// Mock data for recent applications
 const recentApplications = [
   {
     id: "1",
@@ -95,15 +95,83 @@ const statusColors = {
   rejected: "destructive",
 } as const;
 
-export function DashboardContent({ user, stats }: DashboardContentProps) {
+const StatCard = ({
+  title,
+  value,
+  description,
+  icon: Icon,
+  trend,
+  highlight,
+  href,
+}: {
+  title: string;
+  value: number | string;
+  description: string;
+  icon: typeof Target;
+  trend?: string;
+  highlight?: boolean;
+  href: string;
+}) => (
+  <Link href={href}>
+    <Card
+      className={`hover:border-primary/50 cursor-pointer transition-colors ${highlight ? "border-primary/50 bg-primary/5" : ""}`}
+    >
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between">
+          <div className="bg-muted flex h-10 w-10 items-center justify-center rounded-lg">
+            <Icon className="text-muted-foreground h-5 w-5" />
+          </div>
+          {trend && (
+            <Badge variant="secondary" className="text-xs">
+              {trend}
+            </Badge>
+          )}
+          {highlight && <span className="bg-primary h-2 w-2 animate-pulse rounded-full" />}
+        </div>
+        <div className="mt-4">
+          <p className="text-foreground text-2xl font-bold">{value}</p>
+          <p className="text-muted-foreground text-sm">{description}</p>
+        </div>
+      </CardContent>
+    </Card>
+  </Link>
+);
+
+const QuickActionCard = ({
+  title,
+  description,
+  icon: Icon,
+  href,
+}: {
+  title: string;
+  description: string;
+  icon: typeof FileText;
+  href: string;
+}) => (
+  <Link
+    href={href}
+    className="border-border hover:border-primary/50 hover:bg-muted/50 group flex items-center gap-4 rounded-lg border p-4 transition-all"
+  >
+    <div className="bg-primary/10 group-hover:bg-primary/20 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl transition-colors">
+      <Icon className="text-primary h-6 w-6" />
+    </div>
+    <div>
+      <h4 className="text-foreground group-hover:text-primary font-medium transition-colors">
+        {title}
+      </h4>
+      <p className="text-muted-foreground text-sm">{description}</p>
+    </div>
+  </Link>
+);
+
+const DashboardContent = ({ user, stats }: DashboardContentProps) => {
   const firstName = user.name?.split(" ")[0] || "there";
 
   return (
     <div className="space-y-8">
-      {/* Welcome Section */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+          <h1 className="text-foreground text-2xl font-bold md:text-3xl">
             Welcome back, {firstName}
           </h1>
           <p className="text-muted-foreground mt-1">
@@ -113,20 +181,19 @@ export function DashboardContent({ user, stats }: DashboardContentProps) {
         <div className="flex gap-3">
           <Button variant="outline" asChild>
             <Link href="/dashboard/tools">
-              <Sparkles className="h-4 w-4 mr-2" />
+              <Sparkles className="mr-2 h-4 w-4" />
               AI Tools
             </Link>
           </Button>
           <Button asChild>
             <Link href="/dashboard/jobs">
               Browse Jobs
-              <ArrowRight className="h-4 w-4 ml-2" />
+              <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
         </div>
       </div>
 
-      {/* Stats Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Matched Jobs"
@@ -160,9 +227,7 @@ export function DashboardContent({ user, stats }: DashboardContentProps) {
         />
       </div>
 
-      {/* Main Content Grid */}
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Job Matches */}
         <Card className="lg:col-span-2">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <div>
@@ -172,7 +237,7 @@ export function DashboardContent({ user, stats }: DashboardContentProps) {
             <Button variant="ghost" size="sm" asChild>
               <Link href="/dashboard/jobs">
                 View all
-                <ArrowRight className="h-4 w-4 ml-1" />
+                <ArrowRight className="ml-1 h-4 w-4" />
               </Link>
             </Button>
           </CardHeader>
@@ -182,40 +247,46 @@ export function DashboardContent({ user, stats }: DashboardContentProps) {
                 <Link
                   key={job.id}
                   href={`/dashboard/jobs/${job.id}`}
-                  className="flex items-center gap-4 p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors group"
+                  className="border-border hover:bg-muted/50 group flex items-center gap-4 rounded-lg border p-4 transition-colors"
                 >
-                  <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
-                    <Building2 className="h-6 w-6 text-muted-foreground" />
+                  <div className="bg-muted flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg">
+                    <Building2 className="text-muted-foreground h-6 w-6" />
                   </div>
-                  <div className="flex-1 min-w-0">
+                  <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <h4 className="font-medium text-foreground truncate group-hover:text-primary transition-colors">
+                      <h4 className="text-foreground group-hover:text-primary truncate font-medium transition-colors">
                         {job.title}
                       </h4>
                     </div>
-                    <p className="text-sm text-muted-foreground truncate">
+                    <p className="text-muted-foreground truncate text-sm">
                       {job.company} &middot; {job.location}
                     </p>
-                    <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+                    <div className="text-muted-foreground mt-1 flex items-center gap-2 text-xs">
                       <span>{job.salary}</span>
                       <span>&middot;</span>
                       <Clock className="h-3 w-3" />
                       <span>{job.postedAt}</span>
                     </div>
                   </div>
-                  <div className="text-right flex-shrink-0">
+                  <div className="flex-shrink-0 text-right">
                     <div className="flex items-center gap-2">
                       <Progress
                         value={job.matchScore}
                         className="w-16"
                         size="sm"
-                        variant={job.matchScore >= 90 ? "success" : job.matchScore >= 80 ? "default" : "warning"}
+                        variant={
+                          job.matchScore >= 90
+                            ? "success"
+                            : job.matchScore >= 80
+                              ? "default"
+                              : "warning"
+                        }
                       />
-                      <span className="text-sm font-medium text-foreground w-10">
+                      <span className="text-foreground w-10 text-sm font-medium">
                         {job.matchScore}%
                       </span>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">Match</p>
+                    <p className="text-muted-foreground mt-1 text-xs">Match</p>
                   </div>
                 </Link>
               ))}
@@ -223,7 +294,6 @@ export function DashboardContent({ user, stats }: DashboardContentProps) {
           </CardContent>
         </Card>
 
-        {/* Recent Activity */}
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">Recent Applications</CardTitle>
@@ -236,45 +306,42 @@ export function DashboardContent({ user, stats }: DashboardContentProps) {
                   <Link
                     key={app.id}
                     href={`/dashboard/applications/${app.id}`}
-                    className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors"
+                    className="hover:bg-muted/50 flex items-start gap-3 rounded-lg p-3 transition-colors"
                   >
-                    <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
-                      <Briefcase className="h-5 w-5 text-muted-foreground" />
+                    <div className="bg-muted flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg">
+                      <Briefcase className="text-muted-foreground h-5 w-5" />
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-foreground text-sm truncate">
-                        {app.title}
-                      </h4>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {app.company}
-                      </p>
-                      <div className="flex items-center gap-2 mt-1.5">
-                        <Badge variant={statusColors[app.status as keyof typeof statusColors]} className="text-xs">
+                    <div className="min-w-0 flex-1">
+                      <h4 className="text-foreground truncate text-sm font-medium">{app.title}</h4>
+                      <p className="text-muted-foreground truncate text-xs">{app.company}</p>
+                      <div className="mt-1.5 flex items-center gap-2">
+                        <Badge
+                          variant={statusColors[app.status as keyof typeof statusColors]}
+                          className="text-xs"
+                        >
                           {app.status}
                         </Badge>
-                        <span className="text-xs text-muted-foreground">
-                          {app.appliedAt}
-                        </span>
+                        <span className="text-muted-foreground text-xs">{app.appliedAt}</span>
                       </div>
                     </div>
                   </Link>
                 ))
               ) : (
-                <div className="text-center py-8">
-                  <FileText className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-                  <p className="text-sm text-muted-foreground">No applications yet</p>
+                <div className="py-8 text-center">
+                  <FileText className="text-muted-foreground mx-auto mb-3 h-10 w-10" />
+                  <p className="text-muted-foreground text-sm">No applications yet</p>
                   <Button variant="outline" size="sm" className="mt-3" asChild>
                     <Link href="/dashboard/jobs">Start applying</Link>
                   </Button>
                 </div>
               )}
             </div>
-            
+
             {recentApplications.length > 0 && (
-              <Button variant="ghost" size="sm" className="w-full mt-4" asChild>
+              <Button variant="ghost" size="sm" className="mt-4 w-full" asChild>
                 <Link href="/dashboard/applications">
                   View all applications
-                  <ArrowRight className="h-4 w-4 ml-1" />
+                  <ArrowRight className="ml-1 h-4 w-4" />
                 </Link>
               </Button>
             )}
@@ -282,7 +349,6 @@ export function DashboardContent({ user, stats }: DashboardContentProps) {
         </Card>
       </div>
 
-      {/* Quick Actions */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">AI-Powered Tools</CardTitle>
@@ -313,77 +379,6 @@ export function DashboardContent({ user, stats }: DashboardContentProps) {
       </Card>
     </div>
   );
-}
+};
 
-function StatCard({
-  title,
-  value,
-  description,
-  icon: Icon,
-  trend,
-  highlight,
-  href,
-}: {
-  title: string;
-  value: number | string;
-  description: string;
-  icon: typeof Target;
-  trend?: string;
-  highlight?: boolean;
-  href: string;
-}) {
-  return (
-    <Link href={href}>
-      <Card className={`hover:border-primary/50 transition-colors cursor-pointer ${highlight ? "border-primary/50 bg-primary/5" : ""}`}>
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center">
-              <Icon className="h-5 w-5 text-muted-foreground" />
-            </div>
-            {trend && (
-              <Badge variant="secondary" className="text-xs">
-                {trend}
-              </Badge>
-            )}
-            {highlight && (
-              <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-            )}
-          </div>
-          <div className="mt-4">
-            <p className="text-2xl font-bold text-foreground">{value}</p>
-            <p className="text-sm text-muted-foreground">{description}</p>
-          </div>
-        </CardContent>
-      </Card>
-    </Link>
-  );
-}
-
-function QuickActionCard({
-  title,
-  description,
-  icon: Icon,
-  href,
-}: {
-  title: string;
-  description: string;
-  icon: typeof FileText;
-  href: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className="flex items-center gap-4 p-4 rounded-lg border border-border hover:border-primary/50 hover:bg-muted/50 transition-all group"
-    >
-      <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
-        <Icon className="h-6 w-6 text-primary" />
-      </div>
-      <div>
-        <h4 className="font-medium text-foreground group-hover:text-primary transition-colors">
-          {title}
-        </h4>
-        <p className="text-sm text-muted-foreground">{description}</p>
-      </div>
-    </Link>
-  );
-}
+export default DashboardContent;

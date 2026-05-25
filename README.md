@@ -50,14 +50,14 @@ packages/
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| `pnpm dev` | Start all apps in dev mode via Turbo |
-| `pnpm build` | Build all apps |
-| `pnpm lint` | Lint all workspaces |
-| `pnpm test` | Run all tests |
-| `pnpm typecheck` | Type-check all workspaces |
-| `pnpm format` | Format code with Prettier |
+| Command                                                | Description                                                |
+| ------------------------------------------------------ | ---------------------------------------------------------- |
+| `pnpm dev`                                             | Start all apps in dev mode via Turbo                       |
+| `pnpm build`                                           | Build all apps                                             |
+| `pnpm lint`                                            | Lint all workspaces                                        |
+| `pnpm test`                                            | Run all tests                                              |
+| `pnpm typecheck`                                       | Type-check all workspaces                                  |
+| `pnpm format`                                          | Format code with Prettier                                  |
 | `docker compose -f infra/docker-compose.dev.yml up -d` | Start infra services (Mongo, Redis, Qdrant, MinIO, Ollama) |
 
 ## Testing
@@ -77,13 +77,13 @@ pnpm --filter @rassa/candidate-portal test
 
 After running `pnpm dev`, access each app in your browser:
 
-| App | URL | Description |
-|-----|-----|-------------|
+| App              | URL                     | Description                                                   |
+| ---------------- | ----------------------- | ------------------------------------------------------------- |
 | Candidate Portal | <http://localhost:3000> | Job seeker interface — browse jobs, apply, track applications |
-| Company Portal | <http://localhost:3001> | Recruiter dashboard — post jobs, review candidates |
-| Admin | <http://localhost:3002> | Internal admin panel — manage users, settings |
-| Backend API | <http://localhost:4000> | NestJS REST API (Swagger at /api) |
-| AI Service | <http://localhost:8000> | FastAPI health check at /health |
+| Company Portal   | <http://localhost:3001> | Recruiter dashboard — post jobs, review candidates            |
+| Admin            | <http://localhost:3002> | Internal admin panel — manage users, settings                 |
+| Backend API      | <http://localhost:4000> | NestJS REST API (Swagger at /api)                             |
+| AI Service       | <http://localhost:8000> | FastAPI health check at /health                               |
 
 To test a specific flow (e.g. candidate registration + job application), open the Candidate Portal and Company Portal side by side.
 

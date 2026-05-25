@@ -1,7 +1,11 @@
-import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { ProfileContent } from "./profile-content";
+
+import type { CV } from "@repo/shared-types";
+
+import { auth } from "@/lib/auth";
 import { getDatabase } from "@/lib/mongodb";
+
+import ProfileContent from "./ProfileContent";
 
 export const metadata = {
   title: "My Profile - Rassa",
@@ -21,5 +25,5 @@ export default async function ProfilePage() {
     isActive: true,
   });
 
-  return <ProfileContent user={session.user} cv={cv} />;
+  return <ProfileContent user={session.user} cv={(cv as unknown as CV) ?? undefined} />;
 }

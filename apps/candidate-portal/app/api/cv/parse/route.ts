@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { auth } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
@@ -29,7 +30,8 @@ export async function POST(request: NextRequest) {
           phone: "",
           location: "",
           title: "Software Engineer",
-          summary: "Experienced software engineer with expertise in building scalable applications.",
+          summary:
+            "Experienced software engineer with expertise in building scalable applications.",
         },
         experience: [
           {
@@ -62,9 +64,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(mockCVData);
   } catch (error) {
     console.error("Error parsing CV:", error);
-    return NextResponse.json(
-      { error: "Failed to parse CV" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to parse CV" }, { status: 500 });
   }
 }

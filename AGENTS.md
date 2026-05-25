@@ -28,14 +28,14 @@ packages/
 
 ## Commands
 
-| Command | What |
-|---------|------|
-| `pnpm dev` | Start all apps in dev mode via Turbo |
-| `pnpm build` | Build all |
-| `pnpm lint` | Lint all |
-| `pnpm test` | Test all |
-| `pnpm typecheck` | Typecheck all |
-| `pnpm format` | Prettier |
+| Command                                                | What                                              |
+| ------------------------------------------------------ | ------------------------------------------------- |
+| `pnpm dev`                                             | Start all apps in dev mode via Turbo              |
+| `pnpm build`                                           | Build all                                         |
+| `pnpm lint`                                            | Lint all                                          |
+| `pnpm test`                                            | Test all                                          |
+| `pnpm typecheck`                                       | Typecheck all                                     |
+| `pnpm format`                                          | Prettier                                          |
 | `docker compose -f infra/docker-compose.dev.yml up -d` | Start infra (Mongo, Redis, Qdrant, MinIO, Ollama) |
 
 ## Architecture notes
@@ -61,18 +61,18 @@ pnpm dev
 
 ### Naming
 
-| What | Convention |
-| ---- | ---------- |
-| Folders | camelCase |
-| Page folders | kebab-case |
+| What                  | Convention     |
+| --------------------- | -------------- |
+| Folders               | camelCase      |
+| Page folders          | kebab-case     |
 | React component files | PascalCase.tsx |
 | Style component files | PascalCase.tsx |
-| Util function files | camelCase.ts |
-| GraphQL files | camelCase.ts |
-| Types file | `types.ts` |
-| GraphQL gql names | `SNAKE_CASE` |
-| API routes | camelCase |
-| FE routes | kebab-case |
+| Util function files   | camelCase.ts   |
+| GraphQL files         | camelCase.ts   |
+| Types file            | `types.ts`     |
+| GraphQL gql names     | `SNAKE_CASE`   |
+| API routes            | camelCase      |
+| FE routes             | kebab-case     |
 
 ### Module Exports
 

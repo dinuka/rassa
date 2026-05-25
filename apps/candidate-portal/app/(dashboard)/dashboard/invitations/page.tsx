@@ -1,6 +1,8 @@
-import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { InvitationsContent } from "./invitations-content";
+
+import { auth } from "@/lib/auth";
+
+import InvitationsContent from "./InvitationsContent";
 
 export const metadata = {
   title: "Invitations - Rassa",

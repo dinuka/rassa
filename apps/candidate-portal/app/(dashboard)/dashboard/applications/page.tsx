@@ -1,6 +1,8 @@
-import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { ApplicationsContent } from "./applications-content";
+
+import { auth } from "@/lib/auth";
+
+import ApplicationsContent from "./ApplicationsContent";
 
 export const metadata = {
   title: "My Applications - Rassa",

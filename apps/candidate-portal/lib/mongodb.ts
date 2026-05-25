@@ -1,24 +1,19 @@
 import { MongoClient } from "mongodb";
 
-let client: MongoClient | null = null;
-let clientPromise: Promise<MongoClient> | null = null;
+import env from "./env";
 
-export async function getClient(): Promise<MongoClient> {
-  const uri = process.env.MONGODB_URI;
-  if (!uri) {
-    throw new Error('Invalid/Missing environment variable: "MONGODB_URI"');
-  }
+let client: MongoClient | undefined;
+let clientPromise: Promise<MongoClient> | undefined;
 
+export const getClient = async (): Promise<MongoClient> => {
   if (!client) {
-    client = new MongoClient(uri, {});
+    client = new MongoClient(env.mongodbUri, {});
     clientPromise = client.connect();
   }
   return clientPromise!;
-}
+};
 
-export async function getDatabase(dbName: string = "rassa") {
-  const client = await getClient();
-  return client.db(dbName);
-}
-
-export default getClient;
+export const getDatabase = async (dbName: string = "rassa") => {
+  const c = await getClient();
+  return c.db(dbName);
+};

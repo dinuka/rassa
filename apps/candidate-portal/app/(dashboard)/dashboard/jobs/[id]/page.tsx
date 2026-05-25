@@ -1,6 +1,8 @@
-import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { JobDetailContent } from "./job-detail-content";
+
+import { auth } from "@/lib/auth";
+
+import JobDetailContent from "./JobDetailContent";
 
 export const metadata = {
   title: "Job Details - Rassa",

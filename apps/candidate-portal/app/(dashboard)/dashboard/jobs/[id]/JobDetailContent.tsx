@@ -1,44 +1,47 @@
 "use client";
 
+import { useState } from "react";
+
 import Link from "next/link";
+
 import {
+  AlertCircle,
+  ArrowLeft,
+  Bookmark,
+  BookmarkCheck,
+  Building2,
+  CheckCircle,
+  Clock,
+  DollarSign,
+  ExternalLink,
+  FileText,
+  MapPin,
+  MessageSquare,
+  Share2,
+  Sparkles,
+} from "lucide-react";
+
+import {
+  Badge,
+  Button,
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-  Button,
-  Badge,
   Progress,
   Separator,
 } from "@repo/ui";
-import {
-  ArrowLeft,
-  Building2,
-  MapPin,
-  Clock,
-  DollarSign,
-  Bookmark,
-  BookmarkCheck,
-  Share2,
-  FileText,
-  Sparkles,
-  MessageSquare,
-  CheckCircle,
-  AlertCircle,
-  ExternalLink,
-} from "lucide-react";
-import { useState } from "react";
 
 interface JobDetailContentProps {
   jobId: string;
 }
 
-// Mock job data
 const getJob = (id: string) => ({
   id,
   title: "Senior Frontend Engineer",
   company: "TechCorp Inc.",
-  companyDescription: "TechCorp is a leading technology company focused on building innovative solutions for enterprise customers. We're backed by top-tier investors and have a team of 500+ employees across 10 offices globally.",
+  companyDescription:
+    "TechCorp is a leading technology company focused on building innovative solutions for enterprise customers. We're backed by top-tier investors and have a team of 500+ employees across 10 offices globally.",
   location: "San Francisco, CA",
   type: "Full-time",
   remote: true,
@@ -81,7 +84,7 @@ const getJob = (id: string) => ({
   ],
 });
 
-export function JobDetailContent({ jobId }: JobDetailContentProps) {
+const JobDetailContent = ({ jobId }: JobDetailContentProps) => {
   const job = getJob(jobId);
   const [isSaved, setIsSaved] = useState(false);
 
@@ -91,31 +94,26 @@ export function JobDetailContent({ jobId }: JobDetailContentProps) {
 
   return (
     <div className="space-y-6">
-      {/* Back Button */}
       <Link
         href="/dashboard/jobs"
-        className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
+        className="text-muted-foreground hover:text-foreground inline-flex items-center text-sm transition-colors"
       >
-        <ArrowLeft className="h-4 w-4 mr-1" />
+        <ArrowLeft className="mr-1 h-4 w-4" />
         Back to Jobs
       </Link>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Header Card */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="space-y-6 lg:col-span-2">
           <Card>
             <CardContent className="p-6">
               <div className="flex gap-4">
-                <div className="h-16 w-16 rounded-xl bg-muted flex items-center justify-center flex-shrink-0">
-                  <Building2 className="h-8 w-8 text-muted-foreground" />
+                <div className="bg-muted flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-xl">
+                  <Building2 className="text-muted-foreground h-8 w-8" />
                 </div>
                 <div className="flex-1">
-                  <h1 className="text-2xl font-bold text-foreground">
-                    {job.title}
-                  </h1>
-                  <p className="text-lg text-muted-foreground">{job.company}</p>
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3 text-sm text-muted-foreground">
+                  <h1 className="text-foreground text-2xl font-bold">{job.title}</h1>
+                  <p className="text-muted-foreground text-lg">{job.company}</p>
+                  <div className="text-muted-foreground mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
                     <span className="flex items-center gap-1">
                       <MapPin className="h-4 w-4" />
                       {job.location}
@@ -128,24 +126,18 @@ export function JobDetailContent({ jobId }: JobDetailContentProps) {
                       <Clock className="h-4 w-4" />
                       {job.type}
                     </span>
-                    {job.remote && (
-                      <Badge variant="secondary">Remote</Badge>
-                    )}
+                    {job.remote && <Badge variant="secondary">Remote</Badge>}
                   </div>
                 </div>
               </div>
 
-              <div className="flex gap-3 mt-6">
+              <div className="mt-6 flex gap-3">
                 <Button size="lg" className="flex-1">
                   Apply Now
                 </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={() => setIsSaved(!isSaved)}
-                >
+                <Button variant="outline" size="lg" onClick={() => setIsSaved(!isSaved)}>
                   {isSaved ? (
-                    <BookmarkCheck className="h-5 w-5 text-primary" />
+                    <BookmarkCheck className="text-primary h-5 w-5" />
                   ) : (
                     <Bookmark className="h-5 w-5" />
                   )}
@@ -157,7 +149,6 @@ export function JobDetailContent({ jobId }: JobDetailContentProps) {
             </CardContent>
           </Card>
 
-          {/* Job Description */}
           <Card>
             <CardHeader>
               <CardTitle>About the Role</CardTitle>
@@ -167,7 +158,7 @@ export function JobDetailContent({ jobId }: JobDetailContentProps) {
                 {job.description.split("\n").map((paragraph, i) => {
                   if (paragraph.startsWith("## ")) {
                     return (
-                      <h3 key={i} className="text-lg font-semibold text-foreground mt-6 mb-3">
+                      <h3 key={i} className="text-foreground mt-6 mb-3 text-lg font-semibold">
                         {paragraph.replace("## ", "")}
                       </h3>
                     );
@@ -186,22 +177,21 @@ export function JobDetailContent({ jobId }: JobDetailContentProps) {
                       </p>
                     );
                   }
-                  return null;
+                  return undefined;
                 })}
               </div>
             </CardContent>
           </Card>
 
-          {/* Benefits */}
           <Card>
             <CardHeader>
               <CardTitle>Benefits</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid md:grid-cols-2 gap-3">
+              <div className="grid gap-3 md:grid-cols-2">
                 {job.benefits.map((benefit, i) => (
-                  <div key={i} className="flex items-center gap-2 text-muted-foreground">
-                    <CheckCircle className="h-4 w-4 text-success flex-shrink-0" />
+                  <div key={i} className="text-muted-foreground flex items-center gap-2">
+                    <CheckCircle className="text-success h-4 w-4 flex-shrink-0" />
                     {benefit}
                   </div>
                 ))}
@@ -209,7 +199,6 @@ export function JobDetailContent({ jobId }: JobDetailContentProps) {
             </CardContent>
           </Card>
 
-          {/* About Company */}
           <Card>
             <CardHeader>
               <CardTitle>About {job.company}</CardTitle>
@@ -217,28 +206,25 @@ export function JobDetailContent({ jobId }: JobDetailContentProps) {
             <CardContent>
               <p className="text-muted-foreground">{job.companyDescription}</p>
               <Button variant="outline" className="mt-4">
-                <ExternalLink className="h-4 w-4 mr-2" />
+                <ExternalLink className="mr-2 h-4 w-4" />
                 Visit Company Website
               </Button>
             </CardContent>
           </Card>
         </div>
 
-        {/* Sidebar */}
         <div className="space-y-6">
-          {/* Match Analysis */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-primary" />
+                <Sparkles className="text-primary h-5 w-5" />
                 Match Analysis
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Match Score Circle */}
               <div className="text-center">
                 <div className="relative inline-flex items-center justify-center">
-                  <svg className="w-28 h-28 transform -rotate-90">
+                  <svg className="h-28 w-28 -rotate-90 transform">
                     <circle
                       cx="56"
                       cy="56"
@@ -259,22 +245,21 @@ export function JobDetailContent({ jobId }: JobDetailContentProps) {
                       className="text-success"
                     />
                   </svg>
-                  <span className="absolute text-2xl font-bold text-foreground">
+                  <span className="text-foreground absolute text-2xl font-bold">
                     {job.matchScore}%
                   </span>
                 </div>
-                <p className="text-sm text-muted-foreground mt-2">
+                <p className="text-muted-foreground mt-2 text-sm">
                   Excellent match for your profile
                 </p>
               </div>
 
               <Separator />
 
-              {/* Skills Breakdown */}
               <div className="space-y-4">
                 <div>
-                  <h4 className="text-sm font-medium text-foreground flex items-center gap-2 mb-2">
-                    <CheckCircle className="h-4 w-4 text-success" />
+                  <h4 className="text-foreground mb-2 flex items-center gap-2 text-sm font-medium">
+                    <CheckCircle className="text-success h-4 w-4" />
                     Skills You Have ({job.matchedSkills.length})
                   </h4>
                   <div className="flex flex-wrap gap-1.5">
@@ -287,8 +272,8 @@ export function JobDetailContent({ jobId }: JobDetailContentProps) {
                 </div>
 
                 <div>
-                  <h4 className="text-sm font-medium text-foreground flex items-center gap-2 mb-2">
-                    <AlertCircle className="h-4 w-4 text-warning" />
+                  <h4 className="text-foreground mb-2 flex items-center gap-2 text-sm font-medium">
+                    <AlertCircle className="text-warning h-4 w-4" />
                     Skills to Develop ({job.missingSkills.length})
                   </h4>
                   <div className="flex flex-wrap gap-1.5">
@@ -303,7 +288,6 @@ export function JobDetailContent({ jobId }: JobDetailContentProps) {
             </CardContent>
           </Card>
 
-          {/* AI Tools */}
           <Card>
             <CardHeader>
               <CardTitle>AI Tools</CardTitle>
@@ -311,29 +295,28 @@ export function JobDetailContent({ jobId }: JobDetailContentProps) {
             <CardContent className="space-y-3">
               <Button variant="outline" className="w-full justify-start" asChild>
                 <Link href={`/dashboard/tools/cv-tailor?jobId=${jobId}`}>
-                  <FileText className="h-4 w-4 mr-2" />
+                  <FileText className="mr-2 h-4 w-4" />
                   Tailor CV for This Job
                 </Link>
               </Button>
               <Button variant="outline" className="w-full justify-start" asChild>
                 <Link href={`/dashboard/tools/cover-letter?jobId=${jobId}`}>
-                  <MessageSquare className="h-4 w-4 mr-2" />
+                  <MessageSquare className="mr-2 h-4 w-4" />
                   Generate Cover Letter
                 </Link>
               </Button>
               <Button variant="outline" className="w-full justify-start" asChild>
                 <Link href={`/dashboard/tools/interview-prep?jobId=${jobId}`}>
-                  <Sparkles className="h-4 w-4 mr-2" />
+                  <Sparkles className="mr-2 h-4 w-4" />
                   Prepare for Interview
                 </Link>
               </Button>
             </CardContent>
           </Card>
 
-          {/* Application Info */}
           <Card>
             <CardContent className="p-4">
-              <div className="text-sm text-muted-foreground space-y-2">
+              <div className="text-muted-foreground space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span>Posted</span>
                   <span className="text-foreground">January 10, 2024</span>
@@ -353,4 +336,6 @@ export function JobDetailContent({ jobId }: JobDetailContentProps) {
       </div>
     </div>
   );
-}
+};
+
+export default JobDetailContent;
