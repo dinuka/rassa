@@ -3,6 +3,8 @@ node_modules/
 dist/
 turbo/
 .turbo/
+**/.turbo/
+*.tsbuildinfo
 
 .env
 .env.local
