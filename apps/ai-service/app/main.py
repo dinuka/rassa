@@ -1,5 +1,6 @@
 from fastapi import FastAPI
-from app.api.v1 import cv, matching, generation, interview, evaluation
+
+from app.api.v1 import cv, evaluation, generation, interview, matching
 
 app = FastAPI(title="AI Service", version="0.1.0")
 

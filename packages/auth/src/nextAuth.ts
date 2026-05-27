@@ -114,5 +114,6 @@ declare module "next-auth" {
 
   // JWT extends AuthUser for the token fields.
   // Portals augment this to carry their own fields through the token (e.g. onboardingComplete).
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface JWT extends AuthUser {}
 }
