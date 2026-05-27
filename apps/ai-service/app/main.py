@@ -12,5 +12,5 @@ app.include_router(evaluation.router, prefix="/api/application", tags=["evaluati
 
 
 @app.get("/health")
-async def health():
+async def health() -> dict[str, str]:
     return {"status": "ok"}
