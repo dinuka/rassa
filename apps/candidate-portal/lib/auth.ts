@@ -1,42 +1,63 @@
+import { buildCallbacks, type OAuthCallbackResponse } from "@repo/auth";
 import NextAuth from "next-auth";
 
-import { MongoDBAdapter } from "@auth/mongodb-adapter";
-
 import { authConfig } from "./auth.config";
-import { getClient } from "./mongodb";
+import env from "./env";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   ...authConfig,
-  adapter: MongoDBAdapter(getClient()),
-  events: {
-    async createUser({ user }) {
-      const client = await getClient();
-      const db = client.db();
-      await db
-        .collection("users")
-        .updateOne(
-          { email: user.email },
-          { $set: { onboardingComplete: false, createdAt: new Date() } },
-        );
+  callbacks: {
+    ...buildCallbacks(env.apiUrl, "candidate"),
+    async signIn({ user, account }) {
+      if (!account) return false;
+
+      const res = await fetch(`${env.apiUrl}/auth/oauth-callback`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          provider: account.provider,
+          providerAccountId: account.providerAccountId,
+          email: user.email,
+          name: user.name,
+          image: user.image,
+          portalSource: "candidate",
+        }),
+      });
+
+      if (!res.ok) return false;
+
+      const data = await res.json() as OAuthCallbackResponse & { user: { onboardingComplete?: boolean } };
+      user.accessToken = data.accessToken;
+      user.refreshToken = data.refreshToken;
+      user.id = data.user.id;
+      user.onboardingComplete = data.user.onboardingComplete;
+
+      return true;
+    },
+    async jwt({ token, user }) {
+      if (user?.accessToken) {
+        token.accessToken = user.accessToken;
+        token.refreshToken = user.refreshToken;
+        token.sub = user.id;
+        token.onboardingComplete = user.onboardingComplete;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      session.user.id = token.sub!;
+      session.accessToken = token.accessToken as string | undefined;
+      session.user.onboardingComplete = token.onboardingComplete as boolean | undefined;
+      return session;
     },
   },
 });
 
-// Extend session types
 declare module "next-auth" {
-  interface Session {
-    user: {
-      id: string;
-      name?: string;
-      email?: string;
-      image?: string;
-      provider?: string;
-    };
+  interface User {
+    onboardingComplete?: boolean;
   }
 
   interface JWT {
-    id?: string;
-    provider?: string;
-    accessToken?: string;
+    onboardingComplete?: boolean;
   }
 }

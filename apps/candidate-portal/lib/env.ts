@@ -5,13 +5,12 @@ const requireEnv = (key: string): string => {
 };
 
 const env = {
-  mongodbUri: requireEnv("MONGODB_URI"),
   googleClientId: requireEnv("GOOGLE_CLIENT_ID"),
   googleClientSecret: requireEnv("GOOGLE_CLIENT_SECRET"),
   linkedinClientId: requireEnv("LINKEDIN_CLIENT_ID"),
   linkedinClientSecret: requireEnv("LINKEDIN_CLIENT_SECRET"),
-  nextauthUrl: process.env.NEXTAUTH_URL ?? "http://localhost:3000",
-  nextauthSecret: requireEnv("NEXTAUTH_SECRET"),
+  nextAuthUrl: process.env.NEXTAUTH_URL ?? "http://localhost:3000",
+  nextAuthSecret: requireEnv("NEXTAUTH_SECRET"),
   apiUrl: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api",
 } as const;
 

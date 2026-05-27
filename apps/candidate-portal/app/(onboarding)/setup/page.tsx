@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 
 import { auth } from "@/lib/auth";
-import { getDatabase } from "@/lib/mongodb";
 
 import SetupWizard from "./SetupWizard";
 
@@ -17,11 +16,7 @@ export default async function SetupPage() {
     redirect("/signin");
   }
 
-  // Check if already completed onboarding
-  const db = await getDatabase();
-  const user = await db.collection("users").findOne({ email: session.user.email });
-
-  if (user?.onboardingComplete) {
+  if (session.user.onboardingComplete) {
     redirect("/dashboard");
   }
 

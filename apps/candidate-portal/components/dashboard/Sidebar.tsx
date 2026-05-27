@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -19,6 +19,7 @@ import {
   Wrench,
 } from "lucide-react";
 
+import { useLogout } from "@repo/auth";
 import { cn } from "@repo/ui";
 import { Avatar, Button, Separator } from "@repo/ui";
 
@@ -35,6 +36,7 @@ const Sidebar = () => {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const { data: session } = useSession();
+  const logout = useLogout();
 
   return (
     <aside
@@ -100,7 +102,7 @@ const Sidebar = () => {
               <p className="text-sidebar-foreground/60 truncate text-xs">{session?.user?.email}</p>
             </div>
             <button
-              onClick={() => signOut({ callbackUrl: "/signin" })}
+              onClick={logout}
               className="text-sidebar-foreground/60 hover:text-sidebar-foreground transition-colors"
               title="Sign out"
             >
@@ -109,7 +111,7 @@ const Sidebar = () => {
           </div>
         ) : (
           <button
-            onClick={() => signOut({ callbackUrl: "/signin" })}
+            onClick={logout}
             className="text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground flex w-full items-center justify-center rounded-lg px-3 py-2 transition-colors"
             title="Sign out"
           >

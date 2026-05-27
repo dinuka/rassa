@@ -1,7 +1,13 @@
-const HomePage = () => (
-  <main className="flex min-h-screen items-center justify-center">
-    <h1 className="text-4xl font-bold">Company Portal</h1>
-  </main>
-);
+import { redirect } from "next/navigation";
 
-export default HomePage;
+import { auth } from "@/lib/auth";
+
+export default async function HomePage() {
+  const session = await auth();
+
+  if (!session?.user) {
+    redirect("/signin");
+  }
+
+  redirect("/dashboard");
+}

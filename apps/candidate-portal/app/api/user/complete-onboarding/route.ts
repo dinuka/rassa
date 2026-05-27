@@ -1,23 +1,26 @@
 import { NextResponse } from "next/server";
 
 import { auth } from "@/lib/auth";
-import { getDatabase } from "@/lib/mongodb";
+import env from "@/lib/env";
 
 export async function POST() {
   try {
     const session = await auth();
-    if (!session?.user?.email) {
+    if (!session?.accessToken) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const db = await getDatabase();
+    const res = await fetch(`${env.apiUrl}/users/me/complete-onboarding`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+    });
 
-    await db
-      .collection("users")
-      .updateOne(
-        { email: session.user.email },
-        { $set: { onboardingComplete: true, updatedAt: new Date() } },
-      );
+    if (!res.ok) {
+      return NextResponse.json({ error: "Failed to complete onboarding" }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -2,9 +2,15 @@
   "name": "@repo/shared-types",
   "private": true,
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
   },
+  "main": "./dist/index.js",
   "scripts": {
+    "build": "tsc -p tsconfig.build.json",
     "lint": "eslint src/",
     "typecheck": "tsc --noEmit"
   },

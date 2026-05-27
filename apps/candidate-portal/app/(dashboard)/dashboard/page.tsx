@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { auth } from "@/lib/auth";
-import { getDatabase } from "@/lib/mongodb";
+import env from "@/lib/env";
 
 import DashboardContent from "./DashboardContent";
 
@@ -17,21 +17,14 @@ export default async function DashboardPage() {
     redirect("/signin");
   }
 
-  const db = await getDatabase();
+  const res = await fetch(`${env.apiUrl}/users/me/stats`, {
+    headers: { Authorization: `Bearer ${session.accessToken}` },
+    cache: "no-store",
+  });
 
-  // Fetch user stats
-  const [cv, applicationsCount, invitationsCount] = await Promise.all([
-    db.collection("cvs").findOne({ userId: session.user.id, isActive: true }),
-    db.collection("applications").countDocuments({ userId: session.user.id }),
-    db.collection("invitations").countDocuments({ userId: session.user.id, status: "pending" }),
-  ]);
-
-  const stats = {
-    cvComplete: !!cv,
-    applicationsCount,
-    invitationsCount,
-    matchedJobs: 24, // Mock data - would come from matching service
-  };
+  const stats = res.ok
+    ? await res.json()
+    : { cvComplete: false, applicationsCount: 0, invitationsCount: 0, matchedJobs: 0 };
 
   return <DashboardContent user={session.user} stats={stats} />;
 }

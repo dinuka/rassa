@@ -45,6 +45,7 @@ packages/
 - `@repo/api-client` is the only package that knows about both backend URLs.
 - `@repo/shared-types` owns Zod schemas; TS types are inferred from them.
 - Python managed by `uv` — no `pip` or `poetry`. Pin Python in `.python-version`.
+- Every Mongoose schema has a separate `id` field (`String`, UUID v4, unique index) alongside MongoDB's automatic `_id` (ObjectId, left untouched). `id` is what appears in API responses and JWT `sub` claims — `_id` is never exposed. Use `randomUUID()` from Node's built-in `crypto` module as the default.
 - Tailwind CSS is v4 with CSS-first config — `globals.css` uses `@import "tailwindcss"`, no `tailwind.config.ts` files exist. Shared theme at `@repo/tailwind-config/theme.css`.
 - The `ai-service/package.json` is a thin wrapper so Turbo can orchestrate the Python app alongside JS ones.
 - Models (BGE embeddings, reranker) live in `apps/ai-service/models/`, gitignored, downloaded via `scripts/download-models.sh`.

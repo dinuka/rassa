@@ -105,6 +105,15 @@ Route groups follow Next.js App Router conventions:
 
 `candidate-portal` uses NextAuth v5 with Google + LinkedIn OAuth providers. Auth is configured in `lib/auth.config.ts` and instantiated in `lib/auth.ts` (MongoDB adapter, JWT session strategy). New users get `onboardingComplete: false` set on creation.
 
+### MongoDB ID convention
+
+Every Mongoose schema carries a separate `id` field holding a UUID v4:
+
+- Keep MongoDB's automatic `_id` (ObjectId) untouched — do not override it.
+- Add `id: { type: String, default: () => randomUUID(), unique: true }` — import `randomUUID` from
+  Node's built-in `"crypto"` module.
+- All API responses and JWT `sub` claims use `id`. Never expose `_id` outside the backend.
+
 ### Styling
 
 Tailwind CSS v4, CSS-first config. **No `tailwind.config.ts` files exist.** Each portal's `globals.css` uses `@import "tailwindcss"`. The shared theme is imported from `@repo/tailwind-config/theme.css`.
