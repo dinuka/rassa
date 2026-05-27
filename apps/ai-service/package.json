@@ -2,7 +2,7 @@
   "name": "@rassa/ai-service",
   "private": true,
   "scripts": {
-    "postinstall": "uv sync",
+    "postinstall": "uv sync --all-extras",
     "dev": "uv run uvicorn app.main:app --reload --port 8000",
     "build": "true",
     "lint": "uv run ruff check .",

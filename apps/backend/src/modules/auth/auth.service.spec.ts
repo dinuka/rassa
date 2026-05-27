@@ -263,7 +263,7 @@ describe("AuthService", () => {
       await service.logout("valid-refresh-token");
 
       expect(mockRedis.set).toHaveBeenCalled();
-      expect(mockUsersService.updateRefreshTokenHash).toHaveBeenCalledWith("test-uuid", null);
+      expect(mockUsersService.updateRefreshTokenHash).toHaveBeenCalledWith("test-uuid");
     });
 
     it("should not throw for invalid token during logout", async () => {

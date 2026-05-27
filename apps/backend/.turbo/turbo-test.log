@@ -2,23 +2,84 @@
 [2m$ jest[22m
 [1m[2mDetermining test suites to run...[22m[22m[999D[K
 [K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/modules/auth/[22m[1mauth.service.spec.ts[22m
+[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/modules/auth/[22m[1mauth.service.spec.ts[22m
+[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/modules/auth/[22m[1mauth.service.spec.ts[22m
+[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/modules/auth/[22m[1mauth.service.spec.ts[22m
+[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/modules/auth/[22m[1mauth.service.spec.ts[22m
+[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/modules/auth/[22m[1mauth.service.spec.ts[22m
+[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/modules/auth/[22m[1mauth.service.spec.ts[22m
+[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/modules/auth/[22m[1mauth.service.spec.ts[22m
+[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/modules/auth/[22m[1mauth.service.spec.ts[22m
+[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/modules/auth/[22m[1mauth.service.spec.ts[22m
+[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/modules/auth/[22m[1mauth.service.spec.ts[22m
+[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/modules/auth/[22m[1mauth.service.spec.ts[22m
+[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/modules/auth/[22m[1mauth.service.spec.ts[22m
+[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/modules/auth/[22m[1mauth.service.spec.ts[22m
+[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/modules/auth/[22m[1mauth.service.spec.ts[22m
+[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/modules/auth/[22m[1mauth.service.spec.ts[22m
+[K[1A[K[1A[0m[7m[1m[32m PASS [39m[22m[27m[0m [2msrc/modules/auth/[22m[1mauth.service.spec.ts[22m
+
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/modules/auth/[22m[1mauth.service.spec.ts[22m
+[K[1A[K[1A  [1m● [22mConsole
+
+    [2mconsole.log[22m
+      ◇ injected env (23) from ../../.env [2m// tip: ⌁ auth for agents [www.vestauth.com][0m
+[2m[22m
+[2m      [2mat _log ([22m[2m../../../node_modules/.pnpm/dotenv@17.4.2/node_modules/dotenv/lib/main.js[2m:131:11)[22m[2m[22m
+
+
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/modules/auth/[22m[1mauth.service.spec.ts[22m
+[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/modules/auth/[22m[1mauth.service.spec.ts[22m
+[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/modules/users/[22m[1musers.service.spec.ts[22m
+[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/modules/users/[22m[1musers.service.spec.ts[22m
+[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/modules/users/[22m[1musers.service.spec.ts[22m
+[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/modules/users/[22m[1musers.service.spec.ts[22m
+[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/modules/users/[22m[1musers.service.spec.ts[22m
+[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/modules/users/[22m[1musers.service.spec.ts[22m
+[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/modules/users/[22m[1musers.service.spec.ts[22m
+[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/modules/users/[22m[1musers.service.spec.ts[22m
+[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/modules/users/[22m[1musers.service.spec.ts[22m
+[K[1A[K[1A
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/modules/users/[22m[1musers.service.spec.ts[22m
+[K[1A[K[1A[0m[7m[1m[32m PASS [39m[22m[27m[0m [2msrc/modules/users/[22m[1musers.service.spec.ts[22m
+
+[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/modules/users/[22m[1musers.service.spec.ts[22m
+[K[1A[K[1A
 [0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/[22m[1mapp.module.spec.ts[22m
 [K[1A[K[1A
 [0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/[22m[1mapp.module.spec.ts[22m
 [K[1A[K[1A[0m[7m[1m[32m PASS [39m[22m[27m[0m [2msrc/[22m[1mapp.module.spec.ts[22m
 
 [0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/[22m[1mapp.module.spec.ts[22m
-[K[1A[K[1A  AppModule
-
-[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/[22m[1mapp.module.spec.ts[22m
-[K[1A[K[1A    [32m✓[39m [2mshould be defined (1 ms)[22m
-
-[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/[22m[1mapp.module.spec.ts[22m
-[K[1A[K[1A
-
-[0m[7m[33m[1m RUNS [22m[39m[27m[0m [2msrc/[22m[1mapp.module.spec.ts[22m
-[K[1A[K[1A[999D[K[1mTest Suites: [22m[1m[32m1 passed[39m[22m, 1 total
-[1mTests:       [22m[1m[32m1 passed[39m[22m, 1 total
+[K[1A[K[1A[999D[K
+[1mTest Suites: [22m[1m[32m3 passed[39m[22m, 3 total
+[1mTests:       [22m[1m[32m24 passed[39m[22m, 24 total
 [1mSnapshots:   [22m0 total
-[1mTime:[22m        0.093 s, estimated 1 s
+[1mTime:[22m        0.526 s, estimated 1 s
 [2mRan all test suites[22m[2m.[22m
