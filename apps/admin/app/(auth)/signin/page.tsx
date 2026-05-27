@@ -10,7 +10,8 @@ export const metadata = {
 };
 
 const ERROR_MESSAGES: Record<string, string> = {
-  AccessDenied: "Your account is not authorised to access the admin portal. Contact your administrator.",
+  AccessDenied:
+    "Your account is not authorised to access the admin portal. Contact your administrator.",
   OAuthSignin: "Could not start the sign-in flow. Please try again.",
   OAuthCallback: "Something went wrong during sign-in. Please try again.",
   OAuthAccountNotLinked: "This email is already linked to a different sign-in method.",
@@ -73,15 +74,27 @@ export default async function SignInPage({
         <div className="signin-form-inner">
           <div className="signin-header">
             <p className="signin-eyebrow">Secure Access</p>
-            <h1 className="signin-title">Sign in to<br />Admin Portal</h1>
-            <p className="signin-desc">
-              Use your authorized organizational account to continue.
-            </p>
+            <h1 className="signin-title">
+              Sign in to
+              <br />
+              Admin Portal
+            </h1>
+            <p className="signin-desc">Use your authorized organizational account to continue.</p>
           </div>
 
           {errorMessage && (
             <div className="signin-error">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{ flexShrink: 0, marginTop: 1 }}
+              >
                 <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
                 <line x1="12" y1="9" x2="12" y2="13" />
                 <line x1="12" y1="17" x2="12.01" y2="17" />
@@ -99,12 +112,22 @@ export default async function SignInPage({
           </div>
 
           <p className="signin-notice">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <circle cx="12" cy="12" r="10" />
               <line x1="12" y1="8" x2="12" y2="12" />
               <line x1="12" y1="16" x2="12.01" y2="16" />
             </svg>
-            Only pre-approved administrators may access this portal. Unauthorized access attempts are logged and monitored.
+            Only pre-approved administrators may access this portal. Unauthorized access attempts
+            are logged and monitored.
           </p>
         </div>
       </div>

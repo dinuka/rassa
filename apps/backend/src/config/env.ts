@@ -5,7 +5,7 @@ config({ path: resolve(__dirname, "../../../../.env"), override: false });
 
 type JwtDuration = `${number}${"s" | "m" | "h" | "d" | "w" | "y"}`;
 
-const requireEnv = (key: string): string => { 
+const requireEnv = (key: string): string => {
   const value = process.env[key];
   if (!value) throw new Error(`Missing required env var: ${key}`);
   return value;

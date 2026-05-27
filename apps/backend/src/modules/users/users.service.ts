@@ -18,7 +18,10 @@ export class UsersService {
     return (await this.userModel.findOne({ id }).exec()) ?? undefined;
   }
 
-  async findByProvider(provider: string, providerAccountId: string): Promise<UserDocument | undefined> {
+  async findByProvider(
+    provider: string,
+    providerAccountId: string,
+  ): Promise<UserDocument | undefined> {
     return (
       (await this.userModel
         .findOne({ providers: { $elemMatch: { provider, providerAccountId } } })
@@ -54,10 +57,12 @@ export class UsersService {
       image: params.image,
       role: params.role,
       onboardingComplete: false,
-      providers: [{
-        provider: params.provider as "google" | "linkedin",
-        providerAccountId: params.providerAccountId,
-      }],
+      providers: [
+        {
+          provider: params.provider as "google" | "linkedin",
+          providerAccountId: params.providerAccountId,
+        },
+      ],
     });
   }
 

@@ -1,5 +1,6 @@
-import { buildCallbacks, type OAuthCallbackResponse } from "@repo/auth";
 import NextAuth from "next-auth";
+
+import { type OAuthCallbackResponse, buildCallbacks } from "@repo/auth";
 
 import { authConfig } from "./auth.config";
 import env from "./env";
@@ -26,7 +27,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       if (!res.ok) return false;
 
-      const data = await res.json() as OAuthCallbackResponse & { user: { onboardingComplete?: boolean } };
+      const data = (await res.json()) as OAuthCallbackResponse & {
+        user: { onboardingComplete?: boolean };
+      };
       user.accessToken = data.accessToken;
       user.refreshToken = data.refreshToken;
       user.id = data.user.id;

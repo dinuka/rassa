@@ -1,5 +1,6 @@
-import { buildCallbacks } from "@repo/auth";
 import NextAuth from "next-auth";
+
+import { buildCallbacks } from "@repo/auth";
 
 import { authConfig } from "./auth.config";
 import env from "./env";

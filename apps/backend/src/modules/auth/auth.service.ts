@@ -1,4 +1,4 @@
-import { Inject, Injectable, UnauthorizedException, ForbiddenException } from "@nestjs/common";
+import { ForbiddenException, Inject, Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { createHash } from "crypto";
 import Redis from "ioredis";
@@ -6,6 +6,7 @@ import Redis from "ioredis";
 import { UserRole } from "@repo/shared-types";
 
 import env from "@/config/env";
+
 import { UserDocument } from "../users/users.schema";
 import { UsersService } from "../users/users.service";
 import { OAuthCallbackDto } from "./dto/oauth-callback.dto";

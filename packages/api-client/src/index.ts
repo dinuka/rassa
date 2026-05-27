@@ -42,7 +42,6 @@ export const aiService = new ApiClient(AI_URL);
 export const authApi = {
   oauthCallback: (body: OAuthCallbackPayload) =>
     backend.post<TokenResponse>("/auth/oauth-callback", body),
-  refresh: (refreshToken: string) =>
-    backend.post<TokenResponse>("/auth/refresh", { refreshToken }),
+  refresh: (refreshToken: string) => backend.post<TokenResponse>("/auth/refresh", { refreshToken }),
   logout: (refreshToken: string) => backend.post("/auth/logout", { refreshToken }),
 };

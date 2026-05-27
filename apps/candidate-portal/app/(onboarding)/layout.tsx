@@ -1,9 +1,10 @@
 "use client";
 
+import { SessionProvider } from "next-auth/react";
+
 import { LogOut, Sparkles } from "lucide-react";
 
 import { useLogout } from "@repo/auth";
-import { SessionProvider } from "next-auth/react";
 
 function OnboardingHeader() {
   const logout = useLogout();

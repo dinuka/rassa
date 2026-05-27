@@ -1,5 +1,5 @@
-import { Test, TestingModule } from "@nestjs/testing";
 import { getModelToken } from "@nestjs/mongoose";
+import { Test, TestingModule } from "@nestjs/testing";
 
 import { UserRole } from "@repo/shared-types";
 
@@ -33,10 +33,7 @@ describe("UsersService", () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        UsersService,
-        { provide: getModelToken(User.name), useValue: mockUserModel },
-      ],
+      providers: [UsersService, { provide: getModelToken(User.name), useValue: mockUserModel }],
     }).compile();
 
     service = module.get<UsersService>(UsersService);
@@ -96,7 +93,10 @@ describe("UsersService", () => {
       };
       const userWithoutProvider = {
         ...mockUser,
-        providers: [{ provider: "google", providerAccountId: "google-id-123" }] as Array<{ provider: "google" | "linkedin"; providerAccountId: string }>,
+        providers: [{ provider: "google", providerAccountId: "google-id-123" }] as Array<{
+          provider: "google" | "linkedin";
+          providerAccountId: string;
+        }>,
         save: jest.fn().mockResolvedValue(savedUser),
       };
       mockUserModel.findOne.mockReturnValueOnce({

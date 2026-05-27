@@ -1,19 +1,17 @@
-process.env.MONGODB_URI = "mongodb://localhost:27017/test";
-process.env.JWT_SECRET = "test-secret";
-
-import { createHash } from "crypto";
-
 import { ForbiddenException, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { Test, TestingModule } from "@nestjs/testing";
+import { createHash } from "crypto";
 import Redis from "ioredis";
 
 import { UserRole } from "@repo/shared-types";
 
 import { UsersService } from "../users/users.service";
-
 import { AuthService } from "./auth.service";
 import { OAuthCallbackDto } from "./dto/oauth-callback.dto";
+
+process.env.MONGODB_URI = "mongodb://localhost:27017/test";
+process.env.JWT_SECRET = "test-secret";
 
 jest.mock("ioredis");
 

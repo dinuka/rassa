@@ -48,7 +48,10 @@ export interface OAuthCallbackResponse {
   user: { id: string };
 }
 
-export const buildCallbacks = (apiUrl: string, portalSource: PortalSource): NextAuthConfig["callbacks"] => ({
+export const buildCallbacks = (
+  apiUrl: string,
+  portalSource: PortalSource,
+): NextAuthConfig["callbacks"] => ({
   async signIn({ user, account }) {
     if (!account) return false;
 
@@ -67,7 +70,7 @@ export const buildCallbacks = (apiUrl: string, portalSource: PortalSource): Next
 
     if (!res.ok) return false;
 
-    const data = await res.json() as OAuthCallbackResponse;
+    const data = (await res.json()) as OAuthCallbackResponse;
 
     user.accessToken = data.accessToken;
     user.refreshToken = data.refreshToken;
@@ -111,5 +114,5 @@ declare module "next-auth" {
 
   // JWT extends AuthUser for the token fields.
   // Portals augment this to carry their own fields through the token (e.g. onboardingComplete).
-  interface JWT extends AuthUser { }
+  interface JWT extends AuthUser {}
 }

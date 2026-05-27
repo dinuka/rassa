@@ -31,12 +31,24 @@ export default async function DashboardPage() {
       {/* Page header */}
       <div style={s.pageHeader}>
         <div>
-          <p style={s.greeting}>{greeting}, {firstName}</p>
+          <p style={s.greeting}>
+            {greeting}, {firstName}
+          </p>
           <h1 style={s.pageTitle}>Hiring Dashboard</h1>
         </div>
         <a href="/jobs/new" style={s.newJobBtn}>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
           Post a Job
         </a>
@@ -49,13 +61,36 @@ export default async function DashboardPage() {
             <div style={s.statTop}>
               <span style={s.statLabel}>{label}</span>
               <div style={{ ...s.statIcon, background: `${color}14` }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: icon }} />
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke={color}
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  dangerouslySetInnerHTML={{ __html: icon }}
+                />
               </div>
             </div>
             <div style={s.statValue}>{value}</div>
             <div style={{ ...s.statDelta, color: positive ? "#16a34a" : "#dc2626" }}>
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                {positive ? <polyline points="18 15 12 9 6 15" /> : <polyline points="6 9 12 15 18 9" />}
+              <svg
+                width="11"
+                height="11"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                {positive ? (
+                  <polyline points="18 15 12 9 6 15" />
+                ) : (
+                  <polyline points="6 9 12 15 18 9" />
+                )}
               </svg>
               {delta} vs last month
             </div>
@@ -69,18 +104,32 @@ export default async function DashboardPage() {
         <div style={s.panel}>
           <div style={s.panelHead}>
             <span style={s.panelTitle}>Active Jobs</span>
-            <a href="/jobs" style={s.panelLink}>View all →</a>
+            <a href="/jobs" style={s.panelLink}>
+              View all →
+            </a>
           </div>
           <div>
             {JOBS.map((job, i) => (
-              <div key={job.title} className="cp-job-row" style={{ ...s.jobRow, borderTop: i > 0 ? "1px solid #f0f2f8" : "none" }}>
+              <div
+                key={job.title}
+                className="cp-job-row"
+                style={{ ...s.jobRow, borderTop: i > 0 ? "1px solid #f0f2f8" : "none" }}
+              >
                 <div>
                   <div style={s.jobTitle}>{job.title}</div>
-                  <div style={s.jobMeta}>{job.location} · {job.type}</div>
+                  <div style={s.jobMeta}>
+                    {job.location} · {job.type}
+                  </div>
                 </div>
                 <div style={s.jobRight}>
                   <div style={s.jobApps}>{job.applications} applicants</div>
-                  <div style={{ ...s.jobBadge, background: job.urgent ? "#fff3e0" : "#f0f8ff", color: job.urgent ? "#d97706" : "#4f8ef7" }}>
+                  <div
+                    style={{
+                      ...s.jobBadge,
+                      background: job.urgent ? "#fff3e0" : "#f0f8ff",
+                      color: job.urgent ? "#d97706" : "#4f8ef7",
+                    }}
+                  >
                     {job.urgent ? "Urgent" : "Active"}
                   </div>
                 </div>
@@ -104,8 +153,23 @@ export default async function DashboardPage() {
                     {stage}
                   </div>
                   <div style={s.pipelineRight}>
-                    <div style={{ ...s.pipelineBar, width: "120px", background: "#f0f2f8", borderRadius: "4px", overflow: "hidden" }}>
-                      <div style={{ height: "6px", width: `${Math.min(100, (count / 60) * 100)}%`, background: color, borderRadius: "4px" }} />
+                    <div
+                      style={{
+                        ...s.pipelineBar,
+                        width: "120px",
+                        background: "#f0f2f8",
+                        borderRadius: "4px",
+                        overflow: "hidden",
+                      }}
+                    >
+                      <div
+                        style={{
+                          height: "6px",
+                          width: `${Math.min(100, (count / 60) * 100)}%`,
+                          background: color,
+                          borderRadius: "4px",
+                        }}
+                      />
                     </div>
                     <span style={s.pipelineCount}>{count}</span>
                   </div>
@@ -121,7 +185,12 @@ export default async function DashboardPage() {
             </div>
             <div style={s.quickGrid}>
               {QUICK.map(({ label, href, color }) => (
-                <a key={label} href={href} className="cp-quick-btn" style={{ ...s.quickBtn, borderLeft: `3px solid ${color}` }}>
+                <a
+                  key={label}
+                  href={href}
+                  className="cp-quick-btn"
+                  style={{ ...s.quickBtn, borderLeft: `3px solid ${color}` }}
+                >
                   {label}
                 </a>
               ))}
@@ -134,17 +203,63 @@ export default async function DashboardPage() {
 }
 
 const STATS = [
-  { label: "Open Positions", value: "24", delta: "+3", positive: true, color: "#4f8ef7", icon: '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>' },
-  { label: "Total Applicants", value: "847", delta: "+18%", positive: true, color: "#7c3aed", icon: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>' },
-  { label: "Interviews This Week", value: "31", delta: "+7", positive: true, color: "#10b981", icon: '<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>' },
-  { label: "Avg. Time to Hire", value: "11d", delta: "-2d", positive: true, color: "#f59e0b", icon: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>' },
+  {
+    label: "Open Positions",
+    value: "24",
+    delta: "+3",
+    positive: true,
+    color: "#4f8ef7",
+    icon: '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>',
+  },
+  {
+    label: "Total Applicants",
+    value: "847",
+    delta: "+18%",
+    positive: true,
+    color: "#7c3aed",
+    icon: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  },
+  {
+    label: "Interviews This Week",
+    value: "31",
+    delta: "+7",
+    positive: true,
+    color: "#10b981",
+    icon: '<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',
+  },
+  {
+    label: "Avg. Time to Hire",
+    value: "11d",
+    delta: "-2d",
+    positive: true,
+    color: "#f59e0b",
+    icon: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  },
 ];
 
 const JOBS = [
-  { title: "Senior Frontend Engineer", location: "Remote", type: "Full-time", applications: 48, urgent: false },
-  { title: "Product Manager", location: "London, UK", type: "Full-time", applications: 92, urgent: true },
+  {
+    title: "Senior Frontend Engineer",
+    location: "Remote",
+    type: "Full-time",
+    applications: 48,
+    urgent: false,
+  },
+  {
+    title: "Product Manager",
+    location: "London, UK",
+    type: "Full-time",
+    applications: 92,
+    urgent: true,
+  },
   { title: "Data Analyst", location: "Remote", type: "Contract", applications: 34, urgent: false },
-  { title: "DevOps Engineer", location: "Berlin, DE", type: "Full-time", applications: 21, urgent: false },
+  {
+    title: "DevOps Engineer",
+    location: "Berlin, DE",
+    type: "Full-time",
+    applications: 21,
+    urgent: false,
+  },
   { title: "UX Designer", location: "Remote", type: "Part-time", applications: 57, urgent: false },
 ];
 
