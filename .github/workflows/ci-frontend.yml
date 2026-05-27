@@ -16,5 +16,5 @@ jobs:
       - uses: actions/setup-node@v6
         with: { node-version: "24", cache: "pnpm" }
       - run: pnpm install --frozen-lockfile --ignore-scripts
-      - run: pnpm lint --filter=@rassa/candidate-portal --filter=@rassa/company-portal --filter=@rassa/admin
-      - run: pnpm typecheck --filter=@rassa/candidate-portal --filter=@rassa/company-portal --filter=@rassa/admin
+      - run: pnpm run lint --filter=@rassa/candidate-portal --filter=@rassa/company-portal --filter=@rassa/admin
+      - run: pnpm run typecheck --filter=@rassa/candidate-portal --filter=@rassa/company-portal --filter=@rassa/admin
