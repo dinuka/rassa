@@ -11,8 +11,7 @@ turbo/
 # Python
 __pycache__/
 *.pyc
-.venv/
-uv.lock
+.venv/ 
 
 # IDE
 .vscode/
