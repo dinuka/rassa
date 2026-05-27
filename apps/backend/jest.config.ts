@@ -8,6 +8,7 @@ const config: Config = {
   collectCoverageFrom: ["**/*.(t|j)s"],
   coverageDirectory: "../coverage",
   testEnvironment: "node",
+  setupFiles: ["<rootDir>/test-setup.ts"],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/$1",
     "^@repo/shared-types$": "<rootDir>/../../../packages/shared-types/src/index.ts",

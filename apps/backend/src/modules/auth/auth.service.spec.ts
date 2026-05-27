@@ -10,9 +10,6 @@ import { UsersService } from "../users/users.service";
 import { AuthService } from "./auth.service";
 import { OAuthCallbackDto } from "./dto/oauth-callback.dto";
 
-process.env.MONGODB_URI = "mongodb://localhost:27017/test";
-process.env.JWT_SECRET = "test-secret";
-
 jest.mock("ioredis");
 
 describe("AuthService", () => {
