@@ -1,6 +1,0 @@
-{
-  "installCommand": "cd ../.. && pnpm install --frozen-lockfile --filter=@rassa/candidate-portal...",
-  "buildCommand": "cd ../.. && pnpm build --filter=@rassa/candidate-portal",
-  "outputDirectory": ".next",
-  "framework": "nextjs"
-}
