@@ -1,3 +1,5 @@
+import type { OAuthCallbackPayload, TokenResponse } from "@repo/shared-types";
+
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api";
 const AI_URL = process.env.NEXT_PUBLIC_AI_URL ?? "http://localhost:8000";
 
@@ -36,3 +38,10 @@ class ApiClient {
 
 export const backend = new ApiClient(BACKEND_URL);
 export const aiService = new ApiClient(AI_URL);
+
+export const authApi = {
+  oauthCallback: (body: OAuthCallbackPayload) =>
+    backend.post<TokenResponse>("/auth/oauth-callback", body),
+  refresh: (refreshToken: string) => backend.post<TokenResponse>("/auth/refresh", { refreshToken }),
+  logout: (refreshToken: string) => backend.post("/auth/logout", { refreshToken }),
+};

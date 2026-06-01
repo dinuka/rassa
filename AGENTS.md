@@ -28,14 +28,14 @@ packages/
 
 ## Commands
 
-| Command | What |
-|---------|------|
-| `pnpm dev` | Start all apps in dev mode via Turbo |
-| `pnpm build` | Build all |
-| `pnpm lint` | Lint all |
-| `pnpm test` | Test all |
-| `pnpm typecheck` | Typecheck all |
-| `pnpm format` | Prettier |
+| Command                                                | What                                              |
+| ------------------------------------------------------ | ------------------------------------------------- |
+| `pnpm dev`                                             | Start all apps in dev mode via Turbo              |
+| `pnpm build`                                           | Build all                                         |
+| `pnpm lint`                                            | Lint all                                          |
+| `pnpm test`                                            | Test all                                          |
+| `pnpm typecheck`                                       | Typecheck all                                     |
+| `pnpm format`                                          | Prettier                                          |
 | `docker compose -f infra/docker-compose.dev.yml up -d` | Start infra (Mongo, Redis, Qdrant, MinIO, Ollama) |
 
 ## Architecture notes
@@ -45,6 +45,7 @@ packages/
 - `@repo/api-client` is the only package that knows about both backend URLs.
 - `@repo/shared-types` owns Zod schemas; TS types are inferred from them.
 - Python managed by `uv` — no `pip` or `poetry`. Pin Python in `.python-version`.
+- Every Mongoose schema has a separate `id` field (`String`, UUID v4, unique index) alongside MongoDB's automatic `_id` (ObjectId, left untouched). `id` is what appears in API responses and JWT `sub` claims — `_id` is never exposed. Use `randomUUID()` from Node's built-in `crypto` module as the default.
 - Tailwind CSS is v4 with CSS-first config — `globals.css` uses `@import "tailwindcss"`, no `tailwind.config.ts` files exist. Shared theme at `@repo/tailwind-config/theme.css`.
 - The `ai-service/package.json` is a thin wrapper so Turbo can orchestrate the Python app alongside JS ones.
 - Models (BGE embeddings, reranker) live in `apps/ai-service/models/`, gitignored, downloaded via `scripts/download-models.sh`.
@@ -61,18 +62,18 @@ pnpm dev
 
 ### Naming
 
-| What | Convention |
-| ---- | ---------- |
-| Folders | camelCase |
-| Page folders | kebab-case |
+| What                  | Convention     |
+| --------------------- | -------------- |
+| Folders               | camelCase      |
+| Page folders          | kebab-case     |
 | React component files | PascalCase.tsx |
 | Style component files | PascalCase.tsx |
-| Util function files | camelCase.ts |
-| GraphQL files | camelCase.ts |
-| Types file | `types.ts` |
-| GraphQL gql names | `SNAKE_CASE` |
-| API routes | camelCase |
-| FE routes | kebab-case |
+| Util function files   | camelCase.ts   |
+| GraphQL files         | camelCase.ts   |
+| Types file            | `types.ts`     |
+| GraphQL gql names     | `SNAKE_CASE`   |
+| API routes            | camelCase      |
+| FE routes             | kebab-case     |
 
 ### Module Exports
 

@@ -3,6 +3,8 @@ node_modules/
 dist/
 turbo/
 .turbo/
+**/.turbo/
+*.tsbuildinfo
 
 .env
 .env.local
@@ -11,8 +13,7 @@ turbo/
 # Python
 __pycache__/
 *.pyc
-.venv/
-uv.lock
+.venv/ 
 
 # IDE
 .vscode/
@@ -24,6 +25,3 @@ Thumbs.db
 
 # AI models (gitignored — download via script)
 apps/ai-service/models/
-
-# Generated
-pnpm-lock.yaml

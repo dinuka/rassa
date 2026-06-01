@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => (
   <html lang="en">
-    <body>{children}</body>
+    <body className="bg-background text-foreground">{children}</body>
   </html>
 );
 

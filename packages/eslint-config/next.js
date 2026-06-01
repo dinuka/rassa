@@ -1,6 +1,7 @@
 module.exports = {
-  extends: [
-    "./base.js",
-    "next/core-web-vitals",
-  ],
+  extends: ["./base.js"],
+  env: { browser: true },
+  rules: {
+    "no-console": "warn",
+  },
 };
