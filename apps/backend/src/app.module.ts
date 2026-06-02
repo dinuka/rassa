@@ -9,7 +9,7 @@ import { UsersModule } from "./modules/users/users.module";
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, envFilePath: "../../.env" }),
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: [".env", "../../.env"] }),
     MongooseModule.forRoot(env.mongodbUri),
     BullModule.forRoot({ connection: { host: env.redisHost, port: env.redisPort } }),
     UsersModule,

@@ -9,7 +9,7 @@ const env = {
   googleClientSecret: requireEnv("GOOGLE_CLIENT_SECRET"),
   linkedinClientId: requireEnv("LINKEDIN_CLIENT_ID"),
   linkedinClientSecret: requireEnv("LINKEDIN_CLIENT_SECRET"),
-  nextAuthUrl: process.env.NEXTAUTH_URL ?? "http://localhost:3000",
+  nextAuthUrl: requireEnv("AUTH_URL"),
   nextAuthSecret: requireEnv("NEXTAUTH_SECRET"),
   apiUrl: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api",
 } as const;
