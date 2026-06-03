@@ -4,6 +4,8 @@ import { useSession } from "next-auth/react";
 
 import { useLogout } from "@repo/auth";
 
+import { RassaLogoIcon } from "@repo/ui";
+
 const Header = () => {
   const logout = useLogout();
   const { data: session } = useSession();
@@ -21,15 +23,7 @@ const Header = () => {
     <header style={s.header}>
       <div style={s.brand}>
         <div style={s.logoMark}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
-              stroke="white"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <RassaLogoIcon size={16} />
         </div>
         <span style={s.brandName}>Rassa</span>
         <span style={s.brandSep} />

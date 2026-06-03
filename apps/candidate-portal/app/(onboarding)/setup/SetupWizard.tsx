@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { ArrowLeft, ArrowRight, Check, FileText, Linkedin, Loader2, Upload } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, FileText, Loader2, Upload } from "lucide-react";
 
 import type { CV } from "@repo/shared-types";
 import {
@@ -12,6 +12,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  LinkedInIcon,
   Progress,
 } from "@repo/ui";
 
@@ -62,7 +63,7 @@ const MethodSelection = ({ onSelect }: { onSelect: (method: SetupMethod) => void
     >
       <CardHeader className="pb-2 text-center">
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-[#0A66C2]/10 transition-colors group-hover:bg-[#0A66C2]/20">
-          <Linkedin className="h-7 w-7 text-[#0A66C2]" />
+          <LinkedInIcon size={28} />
         </div>
         <CardTitle className="text-lg">Import from LinkedIn</CardTitle>
         <CardDescription>Generate a CV from your LinkedIn profile</CardDescription>
