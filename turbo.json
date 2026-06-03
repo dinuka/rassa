@@ -15,6 +15,9 @@
     "test": {},
     "typecheck": {
       "dependsOn": ["^build"]
+    },
+    "@rassa/ai-service#build": {
+      "outputs": []
     }
   }
 }
