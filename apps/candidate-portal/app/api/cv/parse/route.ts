@@ -1,69 +1,48 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { logger } from "@repo/logger";
+
 import { auth } from "@/lib/auth";
+import env from "@/lib/env";
 
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();
-    if (!session?.user) {
+    if (!session?.accessToken) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const formData = await request.formData();
-    const file = formData.get("file") as File;
+    const file = formData.get("file");
 
     if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
-    // In a real implementation, this would:
-    // 1. Upload to storage (Vercel Blob, S3, etc.)
-    // 2. Call AI service to parse the CV
-    // 3. Return structured data
+    const fileName = file instanceof File ? file.name : "unknown";
+    const fileSize = file instanceof File ? file.size : undefined;
+    logger.debug({ fileName, fileSize }, "CV parse request received");
 
-    // For now, return mock data structure
-    const mockCVData = {
-      cv: {
-        personalInfo: {
-          fullName: session.user.name || "",
-          email: session.user.email || "",
-          phone: "",
-          location: "",
-          title: "Software Engineer",
-          summary:
-            "Experienced software engineer with expertise in building scalable applications.",
-        },
-        experience: [
-          {
-            id: crypto.randomUUID(),
-            company: "Tech Company",
-            title: "Senior Software Engineer",
-            location: "San Francisco, CA",
-            startDate: "2022-01",
-            endDate: "",
-            current: true,
-            description: "Leading development of core platform features.",
-            highlights: [],
-          },
-        ],
-        education: [
-          {
-            id: crypto.randomUUID(),
-            institution: "University",
-            degree: "Bachelor of Science",
-            field: "Computer Science",
-            startDate: "2014",
-            endDate: "2018",
-            gpa: "",
-          },
-        ],
-        skills: ["JavaScript", "TypeScript", "React", "Node.js", "Python"],
-      },
-    };
+    const upstream = new FormData();
+    upstream.append("file", file);
 
-    return NextResponse.json(mockCVData);
+    const res = await fetch(`${env.apiUrl}/cv-documents/parse`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${session.accessToken}` },
+      body: upstream,
+    });
+
+    if (!res.ok) {
+      const error = await res.text();
+      logger.warn({ status: res.status, error }, "Backend returned error for CV parse");
+      return NextResponse.json({ error }, { status: res.status });
+    }
+
+    const { jobId } = (await res.json()) as { jobId: string };
+    logger.debug({ fileName, jobId }, "CV parse job enqueued");
+    return NextResponse.json({ jobId });
   } catch (error) {
-    console.error("Error parsing CV:", error);
-    return NextResponse.json({ error: "Failed to parse CV" }, { status: 500 });
+    logger.error(error, "Error enqueuing CV parse");
+    return NextResponse.json({ error: "Failed to start CV parse" }, { status: 500 });
   }
 }

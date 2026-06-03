@@ -7,6 +7,8 @@ import { CheckCircle, FileText, Loader2, Upload, X } from "lucide-react";
 import type { CV } from "@repo/shared-types";
 import { Button, Card, CardContent, LinkedInIcon, Progress } from "@repo/ui";
 
+import clientEnv from "@/lib/clientEnv";
+
 interface CVUploadStepProps {
   onDataExtracted: (data: Partial<CV>) => void;
   onNext: () => void;
@@ -68,31 +70,22 @@ const CVUploadStep = ({ onDataExtracted, onNext, isLinkedIn }: CVUploadStepProps
     if (!file) return;
 
     setIsProcessing(true);
-    setProgress(0);
+    setProgress(10);
 
     try {
-      const progressInterval = setInterval(() => {
-        setProgress((prev) => Math.min(prev + 10, 90));
-      }, 300);
-
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await fetch("/api/cv/parse", {
-        method: "POST",
-        body: formData,
-      });
+      const submitRes = await fetch("/api/cv/parse", { method: "POST", body: formData });
+      if (!submitRes.ok) throw new Error("Failed to submit CV");
 
-      clearInterval(progressInterval);
+      const { jobId } = (await submitRes.json()) as { jobId: string };
+      setProgress(20);
 
-      if (!response.ok) {
-        throw new Error("Failed to process CV");
-      }
-
-      const data = await response.json();
+      const cv = await pollForResult(jobId);
       setProgress(100);
       setIsComplete(true);
-      onDataExtracted(data.cv);
+      onDataExtracted(cv);
 
       setTimeout(() => {
         onNext();
@@ -103,6 +96,31 @@ const CVUploadStep = ({ onDataExtracted, onNext, isLinkedIn }: CVUploadStepProps
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const pollForResult = async (jobId: string): Promise<Partial<CV>> => {
+    const MAX_ATTEMPTS = clientEnv.cvParseMaxAttempts;
+    const INTERVAL_MS = clientEnv.cvParseIntervalMs;
+
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+      await new Promise((resolve) => setTimeout(resolve, INTERVAL_MS));
+
+      const res = await fetch(`/api/cv/parse/status/${jobId}`);
+      if (!res.ok) throw new Error("Failed to poll CV parse status");
+
+      const data = (await res.json()) as { status: string; result?: Partial<CV>; error?: string };
+
+      if (data.status === "done" && data.result) {
+        return data.result;
+      }
+      if (data.status === "failed") {
+        throw new Error(data.error ?? "CV parse failed");
+      }
+
+      setProgress(20 + Math.min(attempt * 2, 70));
+    }
+
+    throw new Error("CV processing timed out");
   };
 
   const removeFile = () => {

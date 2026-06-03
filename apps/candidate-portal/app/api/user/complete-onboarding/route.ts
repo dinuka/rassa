@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+import { logger } from "@repo/logger";
+
 import { auth } from "@/lib/auth";
 import env from "@/lib/env";
 
@@ -24,7 +26,7 @@ export async function POST() {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error completing onboarding:", error);
+    logger.error(error, "Error completing onboarding");
     return NextResponse.json({ error: "Failed to complete onboarding" }, { status: 500 });
   }
 }
