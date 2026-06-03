@@ -1,12 +1,12 @@
 import { Controller, Get, Post, Req, UseGuards } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
-import { Request } from "express";
+import { FastifyRequest } from "fastify";
 
 import { UsersService } from "./users.service";
 
-interface AuthenticatedRequest extends Request {
+type AuthenticatedRequest = FastifyRequest & {
   user: { id: string; email: string; role: string };
-}
+};
 
 @Controller("users")
 export class UsersController {
