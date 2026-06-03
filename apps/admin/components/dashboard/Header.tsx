@@ -4,6 +4,8 @@ import { useSession } from "next-auth/react";
 
 import { useLogout } from "@repo/auth";
 
+import { RassaAdminLogoIcon } from "@repo/ui";
+
 const Header = () => {
   const logout = useLogout();
   const { data: session } = useSession();
@@ -20,13 +22,7 @@ const Header = () => {
   return (
     <header style={styles.header}>
       <div style={styles.brand}>
-        <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-          <rect width="32" height="32" rx="7" fill="rgba(255,255,255,0.12)" />
-          <rect x="7" y="7" width="8" height="8" rx="1.5" fill="white" />
-          <rect x="17" y="7" width="8" height="8" rx="1.5" fill="rgba(255,255,255,0.55)" />
-          <rect x="7" y="17" width="8" height="8" rx="1.5" fill="rgba(255,255,255,0.55)" />
-          <rect x="17" y="17" width="8" height="8" rx="1.5" fill="rgba(255,255,255,0.25)" />
-        </svg>
+        <RassaAdminLogoIcon size={28} />
         <span style={styles.brandName}>Rassa Admin</span>
         <span style={styles.brandSep}>|</span>
         <span style={styles.brandSub}>Internal Console</span>

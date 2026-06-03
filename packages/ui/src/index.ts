@@ -17,3 +17,4 @@ export { Avatar } from "./components/avatar";
 export { Progress } from "./components/progress";
 export { Skeleton } from "./components/skeleton";
 export { Separator } from "./components/separator";
+export { GoogleIcon, LinkedInIcon, RassaLogoIcon, RassaAdminLogoIcon } from "./icons";
