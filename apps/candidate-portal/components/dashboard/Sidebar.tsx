@@ -20,8 +20,7 @@ import {
 } from "lucide-react";
 
 import { useLogout } from "@repo/auth";
-import { cn } from "@repo/ui";
-import { Avatar, Button, Separator } from "@repo/ui";
+import { Avatar, cn } from "@repo/ui";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },

@@ -96,7 +96,7 @@ const statusColors = {
 } as const;
 
 const StatCard = ({
-  title,
+  title: _title,
   value,
   description,
   icon: Icon,

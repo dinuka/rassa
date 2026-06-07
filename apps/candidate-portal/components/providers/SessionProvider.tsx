@@ -1,7 +1,21 @@
 "use client";
 
+import { useEffect } from "react";
+
 import type { Session } from "next-auth";
-import { SessionProvider as NextAuthSessionProvider } from "next-auth/react";
+import { SessionProvider as NextAuthSessionProvider, signOut, useSession } from "next-auth/react";
+
+const SessionErrorWatcher = () => {
+  const { data: session } = useSession();
+
+  useEffect(() => {
+    if (session?.error === "RefreshAccessTokenError") {
+      signOut({ callbackUrl: "/signin" });
+    }
+  }, [session?.error]);
+
+  return null;
+};
 
 interface SessionProviderProps {
   children: React.ReactNode;
@@ -9,7 +23,10 @@ interface SessionProviderProps {
 }
 
 const SessionProvider = ({ children, session }: SessionProviderProps) => (
-  <NextAuthSessionProvider session={session}>{children}</NextAuthSessionProvider>
+  <NextAuthSessionProvider session={session}>
+    <SessionErrorWatcher />
+    {children}
+  </NextAuthSessionProvider>
 );
 
 export default SessionProvider;

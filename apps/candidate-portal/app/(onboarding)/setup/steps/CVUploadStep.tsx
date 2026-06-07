@@ -2,11 +2,12 @@
 
 import { useCallback, useState } from "react";
 
-import { CheckCircle, FileText, Loader2, Upload, X } from "lucide-react";
+import { CheckCircle, FileText, Loader2, Sparkles, Upload, X } from "lucide-react";
 
 import type { CV } from "@repo/shared-types";
-import { Button, Card, CardContent, LinkedInIcon, Progress } from "@repo/ui";
+import { Button, Card, CardContent, LinkedInIcon, cn } from "@repo/ui";
 
+import apiFetch from "@/lib/apiFetch";
 import clientEnv from "@/lib/clientEnv";
 
 interface CVUploadStepProps {
@@ -76,7 +77,7 @@ const CVUploadStep = ({ onDataExtracted, onNext, isLinkedIn }: CVUploadStepProps
       const formData = new FormData();
       formData.append("file", file);
 
-      const submitRes = await fetch("/api/cv/parse", { method: "POST", body: formData });
+      const submitRes = await apiFetch("/api/cv/parse", { method: "POST", body: formData });
       if (!submitRes.ok) throw new Error("Failed to submit CV");
 
       const { jobId } = (await submitRes.json()) as { jobId: string };
@@ -105,7 +106,7 @@ const CVUploadStep = ({ onDataExtracted, onNext, isLinkedIn }: CVUploadStepProps
     for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
       await new Promise((resolve) => setTimeout(resolve, INTERVAL_MS));
 
-      const res = await fetch(`/api/cv/parse/status/${jobId}`);
+      const res = await apiFetch(`/api/cv/parse/status/${jobId}`);
       if (!res.ok) throw new Error("Failed to poll CV parse status");
 
       const data = (await res.json()) as { status: string; result?: Partial<CV>; error?: string };
@@ -117,7 +118,8 @@ const CVUploadStep = ({ onDataExtracted, onNext, isLinkedIn }: CVUploadStepProps
         throw new Error(data.error ?? "CV parse failed");
       }
 
-      setProgress(20 + Math.min(attempt * 2, 70));
+      const progressStep = 100 / MAX_ATTEMPTS;
+      setProgress(Math.min(20 + Math.round((attempt + 1) * progressStep), 90));
     }
 
     throw new Error("CV processing timed out");
@@ -128,6 +130,13 @@ const CVUploadStep = ({ onDataExtracted, onNext, isLinkedIn }: CVUploadStepProps
     setError(undefined);
     setProgress(0);
     setIsComplete(false);
+  };
+
+  const getStage = (pct: number): { label: string; stage: number } => {
+    if (pct <= 25) return { label: "Uploading file…", stage: 0 };
+    if (pct <= 50) return { label: "Reading document…", stage: 1 };
+    if (pct <= 75) return { label: "Extracting experience & skills…", stage: 2 };
+    return { label: "Finalising your profile…", stage: 3 };
   };
 
   if (isLinkedIn) {
@@ -210,12 +219,48 @@ const CVUploadStep = ({ onDataExtracted, onNext, isLinkedIn }: CVUploadStepProps
             </div>
 
             {isProcessing && (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Processing CV...</span>
-                  <span className="text-foreground font-medium">{progress}%</span>
+              <div className="space-y-3">
+                <style>{`
+                  @keyframes shimmer {
+                    0% { background-position: 200% center; }
+                    100% { background-position: -200% center; }
+                  }
+                  .animate-shimmer {
+                    animation: shimmer 1.8s linear infinite;
+                  }
+                `}</style>
+
+                <div className="flex items-center gap-2">
+                  <Sparkles className="text-primary h-4 w-4 animate-pulse" />
+                  <span className="text-muted-foreground text-sm transition-all duration-500">
+                    {getStage(progress).label}
+                  </span>
                 </div>
-                <Progress value={progress} />
+
+                <div className="bg-secondary relative h-2 w-full overflow-hidden rounded-full">
+                  <div
+                    className="absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-out"
+                    style={{
+                      width: `${progress}%`,
+                      background:
+                        "linear-gradient(90deg, var(--color-primary) 0%, oklch(0.75 0.2 259) 100%)",
+                    }}
+                  >
+                    <div className="animate-shimmer absolute inset-0 rounded-full bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.25)_50%,transparent_100%)] bg-[length:200%_100%]" />
+                  </div>
+                </div>
+
+                <div className="flex justify-between px-0.5">
+                  {[0, 1, 2, 3].map((i) => (
+                    <div
+                      key={i}
+                      className={cn(
+                        "h-1.5 w-1.5 rounded-full transition-all duration-500",
+                        getStage(progress).stage >= i ? "bg-primary scale-110" : "bg-secondary",
+                      )}
+                    />
+                  ))}
+                </div>
               </div>
             )}
 

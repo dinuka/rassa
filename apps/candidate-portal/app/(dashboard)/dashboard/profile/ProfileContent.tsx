@@ -27,8 +27,6 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  Input,
-  Progress,
   Separator,
 } from "@repo/ui";
 

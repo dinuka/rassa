@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { ArrowLeft, ArrowRight, Check, FileText, Loader2, Upload } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, FileText, Upload } from "lucide-react";
 
 import { browserLogger } from "@repo/logger/browser";
 import type { CV } from "@repo/shared-types";
@@ -16,6 +16,8 @@ import {
   LinkedInIcon,
   Progress,
 } from "@repo/ui";
+
+import apiFetch from "@/lib/apiFetch";
 
 import CVFormStep from "./steps/CVFormStep";
 import CVPreviewStep from "./steps/CVPreviewStep";
@@ -97,6 +99,7 @@ const SetupWizard = ({ user }: SetupWizardProps) => {
   const [method, setMethod] = useState<SetupMethod>(undefined);
   const [cvData, setCvData] = useState<Partial<CV> | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const handleMethodSelect = (selectedMethod: SetupMethod) => {
     setMethod(selectedMethod);
@@ -115,9 +118,18 @@ const SetupWizard = ({ user }: SetupWizardProps) => {
 
   const handleBack = () => {
     if (currentStep > 1) {
+      if (currentStep === 2 && isEditing) {
+        setIsEditing(false);
+        setCurrentStep(3);
+        return;
+      }
       setCurrentStep(currentStep - 1);
       if (currentStep === 2) {
         setMethod(undefined);
+        setIsEditing(false);
+      }
+      if (currentStep === 3) {
+        setIsEditing(false);
       }
     }
   };
@@ -125,7 +137,7 @@ const SetupWizard = ({ user }: SetupWizardProps) => {
   const handleComplete = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/cv", {
+      const response = await apiFetch("/api/cv", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -135,7 +147,7 @@ const SetupWizard = ({ user }: SetupWizardProps) => {
       });
 
       if (response.ok) {
-        await fetch("/api/user/complete-onboarding", { method: "POST" });
+        await apiFetch("/api/user/complete-onboarding", { method: "POST" });
         window.location.href = "/dashboard";
       }
     } catch (error) {
@@ -177,15 +189,7 @@ const SetupWizard = ({ user }: SetupWizardProps) => {
       <div className="min-h-[400px]">
         {currentStep === 1 && <MethodSelection onSelect={handleMethodSelect} />}
 
-        {currentStep === 2 && method === "upload" && (
-          <CVUploadStep onDataExtracted={handleCVDataUpdate} onNext={handleNext} />
-        )}
-
-        {currentStep === 2 && method === "linkedin" && (
-          <CVUploadStep onDataExtracted={handleCVDataUpdate} onNext={handleNext} isLinkedIn />
-        )}
-
-        {currentStep === 2 && method === "manual" && (
+        {currentStep === 2 && isEditing && (
           <CVFormStep
             initialData={cvData}
             onUpdate={handleCVDataUpdate}
@@ -194,7 +198,32 @@ const SetupWizard = ({ user }: SetupWizardProps) => {
           />
         )}
 
-        {currentStep === 3 && <CVPreviewStep data={cvData} onEdit={() => setCurrentStep(2)} />}
+        {currentStep === 2 && !isEditing && method === "upload" && (
+          <CVUploadStep onDataExtracted={handleCVDataUpdate} onNext={handleNext} />
+        )}
+
+        {currentStep === 2 && !isEditing && method === "linkedin" && (
+          <CVUploadStep onDataExtracted={handleCVDataUpdate} onNext={handleNext} isLinkedIn />
+        )}
+
+        {currentStep === 2 && !isEditing && method === "manual" && (
+          <CVFormStep
+            initialData={cvData}
+            onUpdate={handleCVDataUpdate}
+            onNext={handleNext}
+            user={user}
+          />
+        )}
+
+        {currentStep === 3 && (
+          <CVPreviewStep
+            data={cvData}
+            onEdit={() => {
+              setIsEditing(true);
+              setCurrentStep(2);
+            }}
+          />
+        )}
       </div>
 
       <div className="border-border flex justify-between border-t pt-4">
