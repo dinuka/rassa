@@ -60,19 +60,16 @@ const MethodSelection = ({ onSelect }: { onSelect: (method: SetupMethod) => void
       </CardContent>
     </Card>
 
-    <Card
-      className="hover:border-primary/50 hover:bg-card/80 group cursor-pointer transition-all"
-      onClick={() => onSelect("linkedin")}
-    >
+    <Card className="group relative cursor-not-allowed opacity-60 transition-all">
       <CardHeader className="pb-2 text-center">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-[#0A66C2]/10 transition-colors group-hover:bg-[#0A66C2]/20">
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-[#0A66C2]/10">
           <LinkedInIcon size={28} />
         </div>
         <CardTitle className="text-lg">Import from LinkedIn</CardTitle>
         <CardDescription>Generate a CV from your LinkedIn profile</CardDescription>
       </CardHeader>
       <CardContent className="text-center">
-        <p className="text-muted-foreground text-xs">Quick and easy setup</p>
+        <p className="text-muted-foreground text-xs">Coming soon</p>
       </CardContent>
     </Card>
 

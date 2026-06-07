@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { Award, Briefcase, GraduationCap, Plus, Rocket, Star, User, Wrench, X } from "lucide-react";
+import { v4 as uuidv4 } from "uuid";
 
 import type { CV, Certification, Education, Experience, Project } from "@repo/shared-types";
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Input } from "@repo/ui";
@@ -34,22 +35,29 @@ const MonthYearPicker = ({
   onChange: (v: string) => void;
   disabled?: boolean;
 }) => {
-  const [year, month] = value ? value.split("-") : ["", ""];
+  const [savedYear, savedMonth] = value ? value.split("-") : ["", ""];
+  const [year, setYear] = useState(savedYear);
+  const [month, setMonth] = useState(savedMonth);
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 50 }, (_, i) => currentYear - i);
 
-  const emit = (y: string, m: string) => {
-    if (y && m) onChange(`${y}-${m}`);
-    else onChange("");
+  const handleMonthChange = (m: string) => {
+    setMonth(m);
+    if (year && m) onChange(`${year}-${m}`);
+  };
+
+  const handleYearChange = (y: string) => {
+    setYear(y);
+    if (y && month) onChange(`${y}-${month}`);
   };
 
   return (
     <div className="flex gap-2">
       <select
         className={selectClass}
-        value={month || ""}
+        value={month}
         disabled={disabled}
-        onChange={(e) => emit(year, e.target.value)}
+        onChange={(e) => handleMonthChange(e.target.value)}
       >
         <option value="">Month</option>
         {MONTHS.map((name, i) => {
@@ -63,9 +71,9 @@ const MonthYearPicker = ({
       </select>
       <select
         className={selectClass}
-        value={year || ""}
+        value={year}
         disabled={disabled}
-        onChange={(e) => emit(e.target.value, month)}
+        onChange={(e) => handleYearChange(e.target.value)}
       >
         <option value="">Year</option>
         {years.map((y) => (
@@ -88,6 +96,15 @@ interface CVFormStepProps {
   };
 }
 
+const validateEmail = (v: string) =>
+  v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? "Must be a valid email address" : undefined;
+
+const validatePhone = (v: string) => {
+  if (!v) return undefined;
+  const digits = v.replace(/[\s\-().]/g, "");
+  return /^\+?[1-9]\d{6,14}$/.test(digits) ? undefined : "Must be a valid phone number";
+};
+
 const PersonalInfoForm = ({
   data,
   onChange,
@@ -96,6 +113,8 @@ const PersonalInfoForm = ({
   onChange: (data: CV["personalInfo"]) => void;
 }) => {
   const [linkInput, setLinkInput] = useState({ name: "", href: "" });
+  const [linkError, setLinkError] = useState<string | undefined>();
+  const [errors, setErrors] = useState<{ email?: string; phone?: string }>({});
 
   const handleChange = (field: string, value: string) => {
     onChange({ ...data, [field]: value } as CV["personalInfo"]);
@@ -104,13 +123,19 @@ const PersonalInfoForm = ({
   const links = data?.links ?? [];
 
   const addLink = () => {
-    if (linkInput.name.trim() && linkInput.href.trim()) {
-      onChange({
-        ...data,
-        links: [...links, { name: linkInput.name.trim(), href: linkInput.href.trim() }],
-      } as CV["personalInfo"]);
-      setLinkInput({ name: "", href: "" });
+    if (!linkInput.name.trim() || !linkInput.href.trim()) return;
+    try {
+      new URL(linkInput.href.trim());
+    } catch {
+      setLinkError("Must be a valid URL (include https://)");
+      return;
     }
+    setLinkError(undefined);
+    onChange({
+      ...data,
+      links: [...links, { name: linkInput.name.trim(), href: linkInput.href.trim() }],
+    } as CV["personalInfo"]);
+    setLinkInput({ name: "", href: "" });
   };
 
   const removeLink = (index: number) => {
@@ -145,16 +170,20 @@ const PersonalInfoForm = ({
             type="email"
             value={data?.email || ""}
             onChange={(e) => handleChange("email", e.target.value)}
+            onBlur={(e) => setErrors((prev) => ({ ...prev, email: validateEmail(e.target.value) }))}
             placeholder="john@example.com"
           />
+          {errors.email && <p className="text-destructive mt-1 text-xs">{errors.email}</p>}
         </div>
         <div className="space-y-2">
           <label className="text-foreground text-sm font-medium">Phone</label>
           <Input
             value={data?.phone || ""}
             onChange={(e) => handleChange("phone", e.target.value)}
+            onBlur={(e) => setErrors((prev) => ({ ...prev, phone: validatePhone(e.target.value) }))}
             placeholder="+1 (555) 123-4567"
           />
+          {errors.phone && <p className="text-destructive mt-1 text-xs">{errors.phone}</p>}
         </div>
       </div>
 
@@ -220,7 +249,10 @@ const PersonalInfoForm = ({
           />
           <Input
             value={linkInput.href}
-            onChange={(e) => setLinkInput((p) => ({ ...p, href: e.target.value }))}
+            onChange={(e) => {
+              setLinkInput((p) => ({ ...p, href: e.target.value }));
+              setLinkError(undefined);
+            }}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
@@ -240,6 +272,7 @@ const PersonalInfoForm = ({
             <Plus className="h-4 w-4" />
           </Button>
         </div>
+        {linkError && <p className="text-destructive mt-1 text-xs">{linkError}</p>}
       </div>
     </div>
   );
@@ -256,7 +289,7 @@ const ExperienceForm = ({
     onChange([
       ...data,
       {
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         company: "",
         title: "",
         location: "",
@@ -280,8 +313,9 @@ const ExperienceForm = ({
   };
 
   const addHighlight = (expIndex: number) => {
-    const highlights = [...(data[expIndex].highlights ?? []), ""];
-    updateExperience(expIndex, { highlights });
+    const existing = data[expIndex].highlights ?? [];
+    if (existing.some((h) => !h.trim())) return;
+    updateExperience(expIndex, { highlights: [...existing, ""] });
   };
 
   const updateHighlight = (expIndex: number, hIndex: number, value: string) => {
@@ -294,6 +328,13 @@ const ExperienceForm = ({
     const highlights = (data[expIndex].highlights ?? []).filter((_, i) => i !== hIndex);
     updateExperience(expIndex, { highlights });
   };
+
+  const lastExp = data.length > 0 ? data[data.length - 1] : null;
+  const canAddExperience =
+    !lastExp ||
+    (lastExp.company.trim() !== "" &&
+      lastExp.title.trim() !== "" &&
+      lastExp.startDate.trim() !== "");
 
   return (
     <div className="space-y-6">
@@ -308,7 +349,9 @@ const ExperienceForm = ({
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-foreground text-sm font-medium">Company</label>
+              <label className="text-foreground text-sm font-medium">
+                Company <span className="text-destructive">*</span>
+              </label>
               <Input
                 value={exp.company}
                 onChange={(e) => updateExperience(index, { company: e.target.value })}
@@ -316,7 +359,9 @@ const ExperienceForm = ({
               />
             </div>
             <div className="space-y-2">
-              <label className="text-foreground text-sm font-medium">Job Title</label>
+              <label className="text-foreground text-sm font-medium">
+                Job Title <span className="text-destructive">*</span>
+              </label>
               <Input
                 value={exp.title}
                 onChange={(e) => updateExperience(index, { title: e.target.value })}
@@ -336,7 +381,9 @@ const ExperienceForm = ({
 
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
-              <label className="text-foreground text-sm font-medium">Start Date</label>
+              <label className="text-foreground text-sm font-medium">
+                Start Date <span className="text-destructive">*</span>
+              </label>
               <MonthYearPicker
                 value={exp.startDate || ""}
                 onChange={(v) => updateExperience(index, { startDate: v })}
@@ -397,6 +444,7 @@ const ExperienceForm = ({
               variant="outline"
               size="sm"
               onClick={() => addHighlight(index)}
+              disabled={(exp.highlights ?? []).some((h) => !h.trim())}
               className="w-full"
             >
               <Plus className="mr-2 h-4 w-4" />
@@ -406,7 +454,12 @@ const ExperienceForm = ({
         </div>
       ))}
 
-      <Button variant="outline" onClick={addExperience} className="w-full">
+      <Button
+        variant="outline"
+        onClick={addExperience}
+        disabled={!canAddExperience}
+        className="w-full"
+      >
         <Plus className="mr-2 h-4 w-4" />
         Add Experience
       </Button>
@@ -425,7 +478,7 @@ const EducationForm = ({
     onChange([
       ...data,
       {
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         institution: "",
         degree: "",
         field: "",
@@ -613,7 +666,7 @@ const ProjectsForm = ({
     onChange([
       ...data,
       {
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         name: "",
         role: "",
         startDate: "",
@@ -771,7 +824,7 @@ const CertificationsForm = ({
   onChange: (data: Certification[]) => void;
 }) => {
   const addCertification = () => {
-    onChange([...data, { id: crypto.randomUUID(), name: "", issuer: "", date: "" }]);
+    onChange([...data, { id: uuidv4(), name: "", issuer: "", date: "" }]);
   };
 
   const update = (index: number, updates: Partial<Certification>) => {
