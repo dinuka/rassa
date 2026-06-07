@@ -2,20 +2,9 @@
 
 import { useState } from "react";
 
-import {
-  Award,
-  Briefcase,
-  GraduationCap,
-  Link2,
-  Plus,
-  Rocket,
-  Star,
-  User,
-  Wrench,
-  X,
-} from "lucide-react";
+import { Award, Briefcase, GraduationCap, Plus, Rocket, Star, User, Wrench, X } from "lucide-react";
 
-import type { CV, Certification, CvLink, Education, Experience, Project } from "@repo/shared-types";
+import type { CV, Certification, Education, Experience, Project } from "@repo/shared-types";
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Input } from "@repo/ui";
 
 const MONTHS = [
@@ -911,7 +900,7 @@ const ExtraCurricularForm = ({
   );
 };
 
-const CVFormStep = ({ initialData, onUpdate, onNext, user }: CVFormStepProps) => {
+const CVFormStep = ({ initialData, onUpdate, onNext: _onNext, user }: CVFormStepProps) => {
   const [activeSection, setActiveSection] = useState<
     | "personal"
     | "experience"

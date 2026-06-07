@@ -5,6 +5,7 @@
     "postinstall": "uv sync --all-extras",
     "dev": "uv run uvicorn app.main:app --reload --port 8000",
     "build": "true",
+    "format": "uv run ruff format .",
     "lint": "uv run ruff check .",
     "test": "uv run pytest",
     "typecheck": "uv run mypy ."

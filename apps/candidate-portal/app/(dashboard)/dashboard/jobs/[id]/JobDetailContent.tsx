@@ -21,16 +21,7 @@ import {
   Sparkles,
 } from "lucide-react";
 
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Progress,
-  Separator,
-} from "@repo/ui";
+import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Separator } from "@repo/ui";
 
 interface JobDetailContentProps {
   jobId: string;

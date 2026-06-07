@@ -15,7 +15,6 @@ import {
   List,
   MapPin,
   Search,
-  Sparkles,
 } from "lucide-react";
 
 import { Badge, Button, Card, CardContent, Input, Progress } from "@repo/ui";
