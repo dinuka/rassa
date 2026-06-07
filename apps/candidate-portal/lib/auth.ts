@@ -5,6 +5,18 @@ import { type OAuthCallbackResponse, buildCallbacks } from "@repo/auth";
 import { authConfig } from "./auth.config";
 import env from "./env";
 
+const refreshAccessToken = async (refreshToken: string) => {
+  const res = await fetch(`${env.apiUrl}/auth/refresh`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ refreshToken }),
+  });
+
+  if (!res.ok) return null;
+
+  return (await res.json()) as OAuthCallbackResponse;
+};
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   ...authConfig,
   callbacks: {
@@ -43,8 +55,26 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.refreshToken = user.refreshToken;
         token.sub = user.id;
         token.onboardingComplete = user.onboardingComplete;
+        // Store expiry 60s before actual expiry so we refresh proactively
+        token.accessTokenExpiresAt = Date.now() + 14 * 60 * 1000;
       }
-      return token;
+
+      if (Date.now() < (token.accessTokenExpiresAt as number)) {
+        return token;
+      }
+
+      const refreshToken = token.refreshToken as string | undefined;
+      if (!refreshToken) return token;
+
+      const refreshed = await refreshAccessToken(refreshToken);
+      if (!refreshed) return { ...token, accessToken: undefined };
+
+      return {
+        ...token,
+        accessToken: refreshed.accessToken,
+        refreshToken: refreshed.refreshToken,
+        accessTokenExpiresAt: Date.now() + 14 * 60 * 1000,
+      };
     },
     async session({ session, token }) {
       session.user.id = token.sub!;

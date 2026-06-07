@@ -21,7 +21,7 @@ class Experience(BaseModel):
     company: str
     title: str
     location: str | None = None
-    startDate: str = ""  # noqa: N815
+    startDate: str | None = None  # noqa: N815
     endDate: str | None = None  # noqa: N815
     current: bool | None = None
     description: str | None = None
@@ -35,7 +35,7 @@ class Education(BaseModel):
     institution: str
     degree: str
     field: str
-    startDate: str = ""  # noqa: N815
+    startDate: str | None = None  # noqa: N815
     endDate: str | None = None  # noqa: N815
     gpa: str | None = None
 

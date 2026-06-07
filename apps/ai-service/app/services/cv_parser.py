@@ -2,7 +2,7 @@ import json
 import logging
 import re
 
-from openai import AsyncOpenAI
+from openrouter import OpenRouter
 
 from app.core.config import settings
 from app.schemas.cv import Education, Experience, ParsedCvResponse, PersonalInfo
@@ -57,20 +57,19 @@ Rules:
 
 
 async def parse_cv(text: str, file_name: str = "") -> ParsedCvResponse:
-    client = AsyncOpenAI(base_url=settings.ollama_base_url, api_key="ollama")
-
     truncated_len = min(len(text), 12000)
     logger.debug("Sending CV text to LLM: filename=%s chars=%d (truncated from %d)", file_name, truncated_len, len(text))
 
-    response = await client.chat.completions.create(
-        model="llama3.2",
-        messages=[
-            {"role": "system", "content": _SYSTEM_PROMPT},
-            {"role": "user", "content": f"Parse this CV:\n\n{text[:12000]}"},
-        ],
-        temperature=0,
-        max_tokens=4096,
-    )
+    with OpenRouter(api_key=settings.openrouter_api_key) as client:
+        response = await client.chat.send_async(
+            model=settings.cv_parser_model,
+            messages=[
+                {"role": "system", "content": _SYSTEM_PROMPT},
+                {"role": "user", "content": f"Parse this CV:\n\n{text[:12000]}"},
+            ],
+            temperature=0,
+            max_tokens=4096,
+        )
 
     choice = response.choices[0]
     raw = choice.message.content or ""
