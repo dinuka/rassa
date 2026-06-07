@@ -26,7 +26,7 @@ async def parse_cv(text: str, file_name: str = "") -> ParsedCvResponse:
         temperature=0,
         max_tokens=4096,
     )
-    structured = llm.with_structured_output(CvData, method="json_mode")
+    structured = llm.with_structured_output(CvData, method="json_schema")
 
     result = await structured.ainvoke([
         SystemMessage(content=CV_PARSER_SYSTEM_PROMPT),
