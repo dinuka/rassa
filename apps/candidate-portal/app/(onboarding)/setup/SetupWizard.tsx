@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { ArrowLeft, ArrowRight, Check, FileText, Loader2, Upload } from "lucide-react";
 
+import { browserLogger } from "@repo/logger/browser";
 import type { CV } from "@repo/shared-types";
 import {
   Button,
@@ -138,7 +139,7 @@ const SetupWizard = ({ user }: SetupWizardProps) => {
         window.location.href = "/dashboard";
       }
     } catch (error) {
-      console.error("Failed to save CV:", error);
+      browserLogger.error(error, "Failed to save CV");
     } finally {
       setIsLoading(false);
     }

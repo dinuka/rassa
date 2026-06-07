@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 
-import { auth } from "@/lib/auth";
 import { RassaLogoIcon } from "@repo/ui";
+
+import { auth } from "@/lib/auth";
 
 import AuthButtons from "./AuthButtons";
 

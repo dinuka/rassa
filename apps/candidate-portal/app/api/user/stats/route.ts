@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+import { logger } from "@repo/logger";
+
 import { auth } from "@/lib/auth";
 import env from "@/lib/env";
 
@@ -20,7 +22,7 @@ export async function GET() {
 
     return NextResponse.json(await res.json());
   } catch (error) {
-    console.error("Error fetching user stats:", error);
+    logger.error(error, "Error fetching user stats");
     return NextResponse.json({ error: "Failed to fetch stats" }, { status: 500 });
   }
 }

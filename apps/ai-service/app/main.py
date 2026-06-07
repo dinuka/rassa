@@ -1,6 +1,17 @@
+import logging
+import os
+
 from fastapi import FastAPI
 
 from app.api.v1 import cv, evaluation, generation, interview, matching
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s - %(message)s",
+)
+
+_log_level = logging.DEBUG if os.getenv("LOG_LEVEL", "debug").lower() == "debug" else logging.INFO
+logging.getLogger("app").setLevel(_log_level)
 
 app = FastAPI(title="AI Service", version="0.1.0")
 

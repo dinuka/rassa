@@ -3,7 +3,6 @@
 import { useSession } from "next-auth/react";
 
 import { useLogout } from "@repo/auth";
-
 import { RassaAdminLogoIcon } from "@repo/ui";
 
 const Header = () => {

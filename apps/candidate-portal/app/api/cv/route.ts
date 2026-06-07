@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { logger } from "@repo/logger";
+
 import { auth } from "@/lib/auth";
 import env from "@/lib/env";
 
@@ -26,7 +28,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(await res.json());
   } catch (error) {
-    console.error("Error creating CV:", error);
+    logger.error(error, "Error creating CV");
     return NextResponse.json({ error: "Failed to create CV" }, { status: 500 });
   }
 }
@@ -48,7 +50,7 @@ export async function GET() {
 
     return NextResponse.json(await res.json());
   } catch (error) {
-    console.error("Error fetching CV:", error);
+    logger.error(error, "Error fetching CV");
     return NextResponse.json({ error: "Failed to fetch CV" }, { status: 500 });
   }
 }
