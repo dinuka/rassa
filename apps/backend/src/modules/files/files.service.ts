@@ -2,10 +2,11 @@ import { Injectable, OnModuleInit } from "@nestjs/common";
 import { randomUUID } from "crypto";
 import * as Minio from "minio";
 import { extname } from "path";
+import { Readable } from "stream";
 
 import env from "../../config/env";
 
-const streamToBuffer = async (stream: NodeJS.ReadableStream): Promise<Buffer> => {
+const streamToBuffer = async (stream: Readable): Promise<Buffer> => {
   const chunks: Buffer[] = [];
   for await (const chunk of stream) {
     chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk as string));
