@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from app.schemas.cv import Education, Experience, PersonalInfo
+from app.schemas.cv import Certification, Education, Experience, PersonalInfo, Project
 
 
 class CvData(BaseModel):
@@ -8,3 +8,6 @@ class CvData(BaseModel):
     experience: list[Experience] = []
     education: list[Education] = []
     skills: list[str] = []
+    projects: list[Project] = []
+    certifications: list[Certification] = []
+    extraCurricular: list[str] = []  # noqa: N815

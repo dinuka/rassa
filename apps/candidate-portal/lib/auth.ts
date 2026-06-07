@@ -67,19 +67,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (!refreshToken) return token;
 
       const refreshed = await refreshAccessToken(refreshToken);
-      if (!refreshed) return { ...token, accessToken: undefined };
+      if (!refreshed) return { ...token, accessToken: undefined, error: "RefreshAccessTokenError" };
 
       return {
         ...token,
         accessToken: refreshed.accessToken,
         refreshToken: refreshed.refreshToken,
         accessTokenExpiresAt: Date.now() + 14 * 60 * 1000,
+        error: undefined,
       };
     },
     async session({ session, token }) {
       session.user.id = token.sub!;
       session.accessToken = token.accessToken as string | undefined;
       session.user.onboardingComplete = token.onboardingComplete as boolean | undefined;
+      session.error = token.error as string | undefined;
       return session;
     },
   },
@@ -90,7 +92,12 @@ declare module "next-auth" {
     onboardingComplete?: boolean;
   }
 
+  interface Session {
+    error?: string;
+  }
+
   interface JWT {
     onboardingComplete?: boolean;
+    error?: string;
   }
 }

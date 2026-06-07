@@ -34,6 +34,12 @@ async def parse_cv(text: str, file_name: str = "") -> ParsedCvResponse:
     ])
 
     assert isinstance(result, CvData)
+
+    for edu in result.education:
+        if edu.startDate and not edu.endDate:
+            edu.endDate = edu.startDate
+            edu.startDate = None
+
     logger.debug(
         "CV parsed: filename=%s skills=%d experience=%d", file_name, len(result.skills), len(result.experience)
     )
