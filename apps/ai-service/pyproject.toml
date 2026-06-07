@@ -18,7 +18,7 @@ dependencies = [
     "PyMuPDF>=0.25.0",
     "python-docx>=1.1.2",
     "python-multipart>=0.0.30",
-    "openrouter>=0.9.1",
+    "langchain-openrouter>=0.2.3",
 ]
 
 [project.optional-dependencies]
