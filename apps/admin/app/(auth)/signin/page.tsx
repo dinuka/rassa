@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/lib/auth";
@@ -39,13 +40,7 @@ export default async function SignInPage({
       <div className="signin-brand">
         <div className="signin-brand-inner">
           <div className="signin-logo">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-              <rect width="32" height="32" rx="8" fill="white" fillOpacity="0.15" />
-              <rect x="7" y="7" width="8" height="8" rx="1.5" fill="white" />
-              <rect x="17" y="7" width="8" height="8" rx="1.5" fill="white" fillOpacity="0.6" />
-              <rect x="7" y="17" width="8" height="8" rx="1.5" fill="white" fillOpacity="0.6" />
-              <rect x="17" y="17" width="8" height="8" rx="1.5" fill="white" fillOpacity="0.3" />
-            </svg>
+            <Image src="/logo.png" alt="Rassa Jobs" width={40} height={40} />
             <span className="signin-logo-text">Rassa</span>
           </div>
 
