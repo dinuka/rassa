@@ -1,23 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import {
+  ArrowLeft,
   Briefcase,
   Download,
   Edit2,
-  Eye,
   GraduationCap,
   Mail,
   MapPin,
   Phone,
-  Plus,
   Sparkles,
   Upload,
-  X,
+  UserCircle,
 } from "lucide-react";
 
-import type { CV, Education, Experience } from "@repo/shared-types";
+import { browserLogger } from "@repo/logger/browser";
+import type { CandidateProfile, Education, Experience } from "@repo/shared-types";
 import {
   Avatar,
   Badge,
@@ -30,6 +33,9 @@ import {
   Separator,
 } from "@repo/ui";
 
+import CVFormStep, { type CVFormStepHandle } from "@/app/(onboarding)/setup/steps/CVFormStep";
+import apiFetch from "@/lib/apiFetch";
+
 interface ProfileContentProps {
   user: {
     id: string;
@@ -37,99 +43,60 @@ interface ProfileContentProps {
     email?: string;
     image?: string;
   };
-  cv: CV | undefined;
+  profile: CandidateProfile | undefined;
 }
 
-const mockCV: CV = {
-  id: "1",
-  userId: "1",
-  version: 1,
-  isActive: true,
-  personalInfo: {
-    fullName: "John Doe",
-    email: "john.doe@example.com",
-    phone: "+1 (555) 123-4567",
-    location: "San Francisco, CA",
-    title: "Senior Frontend Engineer",
-    summary:
-      "Experienced software engineer with 8+ years of expertise in building scalable web applications. Passionate about creating intuitive user experiences and mentoring junior developers. Strong background in React, TypeScript, and modern frontend technologies.",
-  },
-  experience: [
-    {
-      id: "1",
-      company: "TechCorp Inc.",
-      title: "Senior Frontend Engineer",
-      location: "San Francisco, CA",
-      startDate: "2021-03",
-      endDate: "",
-      current: true,
-      description:
-        "Leading frontend development for the core product team. Architected and implemented a new design system used across 5 products.",
-      highlights: ["Led team of 4 engineers", "Improved performance by 40%"],
-    },
-    {
-      id: "2",
-      company: "StartupXYZ",
-      title: "Frontend Developer",
-      location: "Remote",
-      startDate: "2018-06",
-      endDate: "2021-02",
-      current: false,
-      description: "Built and maintained React applications for B2B SaaS platform.",
-      highlights: ["Shipped 20+ features", "Reduced bundle size by 50%"],
-    },
-  ],
-  education: [
-    {
-      id: "1",
-      institution: "University of California, Berkeley",
-      degree: "Bachelor of Science",
-      field: "Computer Science",
-      startDate: "2014",
-      endDate: "2018",
-      gpa: "3.8",
-    },
-  ],
-  skills: [
-    "React",
-    "TypeScript",
-    "Node.js",
-    "GraphQL",
-    "AWS",
-    "Docker",
-    "Git",
-    "Agile",
-    "Team Leadership",
-  ],
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
-};
+const EmptyProfile = () => (
+  <div className="flex min-h-[400px] flex-col items-center justify-center gap-4 text-center">
+    <UserCircle className="text-muted-foreground h-16 w-16" />
+    <div>
+      <h2 className="text-foreground text-xl font-semibold">No profile yet</h2>
+      <p className="text-muted-foreground mt-1 text-sm">
+        Complete the onboarding to set up your candidate profile.
+      </p>
+    </div>
+    <Button asChild>
+      <Link href="/onboarding/setup">Set up profile</Link>
+    </Button>
+  </div>
+);
 
-const ProfileContent = ({ user, cv: serverCV }: ProfileContentProps) => {
-  const [cv] = useState<CV>(serverCV || mockCV);
-  const [isEditing, setIsEditing] = useState(false);
-
-  const profileStrength = 85;
+const ProfileView = ({
+  profile,
+  user,
+  onEdit,
+}: {
+  profile: CandidateProfile;
+  user: ProfileContentProps["user"];
+  onEdit: () => void;
+}) => {
+  const profileStrength = (() => {
+    let score = 0;
+    if (profile.personalInfo.fullName) score += 20;
+    if (profile.personalInfo.title) score += 10;
+    if (profile.personalInfo.summary) score += 10;
+    if (profile.experience.length > 0) score += 20;
+    if (profile.education.length > 0) score += 15;
+    if (profile.skills.length > 0) score += 15;
+    if (profile.certifications && profile.certifications.length > 0) score += 10;
+    return score;
+  })();
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-foreground text-2xl font-bold">My Profile</h1>
-          <p className="text-muted-foreground">Manage your CV and professional information</p>
+          <p className="text-muted-foreground">Manage your professional information</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline">
-            <Eye className="mr-2 h-4 w-4" />
-            Preview
-          </Button>
           <Button variant="outline">
             <Download className="mr-2 h-4 w-4" />
             Download PDF
           </Button>
-          <Button>
+          <Button onClick={onEdit}>
             <Upload className="mr-2 h-4 w-4" />
-            Update CV
+            Edit Profile
           </Button>
         </div>
       </div>
@@ -139,136 +106,142 @@ const ProfileContent = ({ user, cv: serverCV }: ProfileContentProps) => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Personal Information</CardTitle>
-              <Button variant="ghost" size="sm" onClick={() => setIsEditing(!isEditing)}>
-                {isEditing ? <X className="h-4 w-4" /> : <Edit2 className="h-4 w-4" />}
+              <Button variant="ghost" size="sm" onClick={onEdit}>
+                <Edit2 className="h-4 w-4" />
               </Button>
             </CardHeader>
             <CardContent>
               <div className="flex items-start gap-6">
-                <Avatar src={user.image} alt={cv.personalInfo.fullName} size="xl" />
+                <Avatar src={user.image} alt={profile.personalInfo.fullName} size="xl" />
                 <div className="flex-1 space-y-4">
                   <div>
                     <h2 className="text-foreground text-xl font-bold">
-                      {cv.personalInfo.fullName}
+                      {profile.personalInfo.fullName}
                     </h2>
-                    <p className="text-primary text-lg">{cv.personalInfo.title}</p>
+                    {profile.personalInfo.title && (
+                      <p className="text-primary text-lg">{profile.personalInfo.title}</p>
+                    )}
                   </div>
 
                   <div className="text-muted-foreground flex flex-wrap gap-4 text-sm">
                     <span className="flex items-center gap-1.5">
                       <Mail className="h-4 w-4" />
-                      {cv.personalInfo.email}
+                      {profile.personalInfo.email}
                     </span>
-                    <span className="flex items-center gap-1.5">
-                      <Phone className="h-4 w-4" />
-                      {cv.personalInfo.phone}
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <MapPin className="h-4 w-4" />
-                      {cv.personalInfo.location}
-                    </span>
+                    {profile.personalInfo.phone && (
+                      <span className="flex items-center gap-1.5">
+                        <Phone className="h-4 w-4" />
+                        {profile.personalInfo.phone}
+                      </span>
+                    )}
+                    {profile.personalInfo.location && (
+                      <span className="flex items-center gap-1.5">
+                        <MapPin className="h-4 w-4" />
+                        {profile.personalInfo.location}
+                      </span>
+                    )}
                   </div>
 
-                  <p className="text-muted-foreground">{cv.personalInfo.summary}</p>
+                  {profile.personalInfo.summary && (
+                    <p className="text-muted-foreground">{profile.personalInfo.summary}</p>
+                  )}
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Briefcase className="text-muted-foreground h-5 w-5" />
-                <CardTitle>Experience</CardTitle>
-              </div>
-              <Button variant="ghost" size="sm">
-                <Plus className="h-4 w-4" />
-              </Button>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {cv.experience.map((exp: Experience, index: number) => (
-                <div key={exp.id}>
-                  {index > 0 && <Separator className="mb-6" />}
-                  <div className="flex items-start justify-between">
+          {profile.experience.length > 0 && (
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Briefcase className="text-muted-foreground h-5 w-5" />
+                  <CardTitle>Experience</CardTitle>
+                </div>
+                <Button variant="ghost" size="sm" onClick={onEdit}>
+                  <Edit2 className="h-4 w-4" />
+                </Button>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {profile.experience.map((exp: Experience, index: number) => (
+                  <div key={exp.id}>
+                    {index > 0 && <Separator className="mb-6" />}
                     <div>
                       <h4 className="text-foreground font-semibold">{exp.title}</h4>
                       <p className="text-primary">{exp.company}</p>
                       <p className="text-muted-foreground text-sm">
-                        {exp.location} &middot; {exp.startDate} -{" "}
-                        {exp.current ? "Present" : exp.endDate}
+                        {exp.location && `${exp.location} · `}
+                        {exp.startDate} – {exp.current ? "Present" : exp.endDate}
                       </p>
                     </div>
-                    <Button variant="ghost" size="sm">
-                      <Edit2 className="h-4 w-4" />
-                    </Button>
+                    {exp.description && (
+                      <p className="text-muted-foreground mt-2">{exp.description}</p>
+                    )}
+                    {exp.highlights && exp.highlights.length > 0 && (
+                      <ul className="mt-2 space-y-1">
+                        {exp.highlights.map((highlight, i) => (
+                          <li
+                            key={i}
+                            className="text-muted-foreground flex items-start gap-2 text-sm"
+                          >
+                            <span className="text-primary">•</span>
+                            {highlight}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
-                  <p className="text-muted-foreground mt-2">{exp.description}</p>
-                  {exp.highlights && exp.highlights.length > 0 && (
-                    <ul className="mt-2 space-y-1">
-                      {exp.highlights.map((highlight, i) => (
-                        <li
-                          key={i}
-                          className="text-muted-foreground flex items-start gap-2 text-sm"
-                        >
-                          <span className="text-primary">•</span>
-                          {highlight}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+                ))}
+              </CardContent>
+            </Card>
+          )}
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div className="flex items-center gap-2">
-                <GraduationCap className="text-muted-foreground h-5 w-5" />
-                <CardTitle>Education</CardTitle>
-              </div>
-              <Button variant="ghost" size="sm">
-                <Plus className="h-4 w-4" />
-              </Button>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {cv.education.map((edu: Education) => (
-                <div key={edu.id} className="flex items-start justify-between">
-                  <div>
+          {profile.education.length > 0 && (
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <GraduationCap className="text-muted-foreground h-5 w-5" />
+                  <CardTitle>Education</CardTitle>
+                </div>
+                <Button variant="ghost" size="sm" onClick={onEdit}>
+                  <Edit2 className="h-4 w-4" />
+                </Button>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {profile.education.map((edu: Education) => (
+                  <div key={edu.id}>
                     <h4 className="text-foreground font-semibold">
                       {edu.degree} in {edu.field}
                     </h4>
                     <p className="text-primary">{edu.institution}</p>
                     <p className="text-muted-foreground text-sm">
-                      {edu.startDate} - {edu.endDate}
-                      {edu.gpa && ` • GPA: ${edu.gpa}`}
+                      {edu.startDate} – {edu.endDate ?? "Present"}
+                      {edu.gpa && ` · GPA: ${edu.gpa}`}
                     </p>
                   </div>
-                  <Button variant="ghost" size="sm">
-                    <Edit2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Skills</CardTitle>
-              <Button variant="ghost" size="sm">
-                <Edit2 className="h-4 w-4" />
-              </Button>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2">
-                {cv.skills.map((skill) => (
-                  <Badge key={skill} variant="secondary" className="text-sm">
-                    {skill}
-                  </Badge>
                 ))}
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
+
+          {profile.skills.length > 0 && (
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Skills</CardTitle>
+                <Button variant="ghost" size="sm" onClick={onEdit}>
+                  <Edit2 className="h-4 w-4" />
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-wrap gap-2">
+                  {profile.skills.map((skill) => (
+                    <Badge key={skill} variant="secondary" className="text-sm">
+                      {skill}
+                    </Badge>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         <div className="space-y-6">
@@ -306,21 +279,33 @@ const ProfileContent = ({ user, cv: serverCV }: ProfileContentProps) => {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <p className="text-muted-foreground text-sm">
-                  Complete these to improve your profile:
-                </p>
-                <ul className="space-y-2 text-sm">
-                  <li className="text-muted-foreground flex items-center gap-2">
-                    <span className="bg-warning h-1.5 w-1.5 rounded-full" />
-                    Add certifications
-                  </li>
-                  <li className="text-muted-foreground flex items-center gap-2">
-                    <span className="bg-warning h-1.5 w-1.5 rounded-full" />
-                    Add portfolio links
-                  </li>
-                </ul>
-              </div>
+              {profileStrength < 100 && (
+                <div className="space-y-2">
+                  <p className="text-muted-foreground text-sm">
+                    Complete these to improve your profile:
+                  </p>
+                  <ul className="space-y-2 text-sm">
+                    {!profile.personalInfo.title && (
+                      <li className="text-muted-foreground flex items-center gap-2">
+                        <span className="bg-warning h-1.5 w-1.5 rounded-full" />
+                        Add your job title
+                      </li>
+                    )}
+                    {!profile.personalInfo.summary && (
+                      <li className="text-muted-foreground flex items-center gap-2">
+                        <span className="bg-warning h-1.5 w-1.5 rounded-full" />
+                        Add a summary
+                      </li>
+                    )}
+                    {(!profile.certifications || profile.certifications.length === 0) && (
+                      <li className="text-muted-foreground flex items-center gap-2">
+                        <span className="bg-warning h-1.5 w-1.5 rounded-full" />
+                        Add certifications
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -350,29 +335,100 @@ const ProfileContent = ({ user, cv: serverCV }: ProfileContentProps) => {
             <CardContent className="space-y-3">
               <div className="bg-muted/50 flex items-center justify-between rounded-lg p-3">
                 <div>
-                  <p className="text-foreground text-sm font-medium">Main CV</p>
-                  <p className="text-muted-foreground text-xs">Updated 2 days ago</p>
+                  <p className="text-foreground text-sm font-medium">Main Profile</p>
+                  <p className="text-muted-foreground text-xs">
+                    Updated {new Date(profile.updatedAt).toLocaleDateString()}
+                  </p>
                 </div>
                 <Badge>Active</Badge>
               </div>
-              <div className="border-border flex items-center justify-between rounded-lg border p-3">
-                <div>
-                  <p className="text-foreground text-sm font-medium">Frontend Focus</p>
-                  <p className="text-muted-foreground text-xs">Tailored for frontend roles</p>
-                </div>
-                <Button variant="ghost" size="sm">
-                  Use
-                </Button>
-              </div>
-              <Button variant="outline" className="w-full">
-                <Plus className="mr-2 h-4 w-4" />
-                Create New Version
+              <Button variant="outline" className="w-full" disabled>
+                <Sparkles className="mr-2 h-4 w-4" />
+                Generate tailored CV
               </Button>
             </CardContent>
           </Card>
         </div>
       </div>
     </div>
+  );
+};
+
+const ProfileContent = ({ user, profile: serverProfile }: ProfileContentProps) => {
+  const router = useRouter();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState<Partial<CandidateProfile> | undefined>(serverProfile);
+  const [isSaving, setIsSaving] = useState(false);
+  const formRef = useRef<CVFormStepHandle>(null);
+
+  const handleSave = async () => {
+    if (formRef.current && !formRef.current.validate()) return;
+
+    setIsSaving(true);
+    try {
+      const res = await apiFetch("/api/candidate/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editData),
+      });
+      if (res.ok) {
+        setIsEditing(false);
+        router.refresh();
+      }
+    } catch (error) {
+      browserLogger.error(error, "Failed to update profile");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (isEditing) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" onClick={() => setIsEditing(false)}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+          <div>
+            <h1 className="text-foreground text-2xl font-bold">Edit Profile</h1>
+            <p className="text-muted-foreground">Update your professional information</p>
+          </div>
+        </div>
+
+        <CVFormStep
+          ref={formRef}
+          initialData={editData}
+          onUpdate={setEditData}
+          onNext={handleSave}
+          user={user}
+        />
+
+        <div className="border-border flex justify-end gap-2 border-t pt-4">
+          <Button variant="outline" onClick={() => setIsEditing(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleSave} isLoading={isSaving}>
+            Save changes
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!serverProfile) {
+    return <EmptyProfile />;
+  }
+
+  return (
+    <ProfileView
+      profile={serverProfile}
+      user={user}
+      onEdit={() => {
+        setEditData(serverProfile);
+        setIsEditing(true);
+      }}
+    />
   );
 };
 

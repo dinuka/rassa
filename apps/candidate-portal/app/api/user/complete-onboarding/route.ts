@@ -15,13 +15,14 @@ export async function POST() {
     const res = await fetch(`${env.apiUrl}/users/me/complete-onboarding`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${session.accessToken}`,
       },
     });
 
     if (!res.ok) {
-      return NextResponse.json({ error: "Failed to complete onboarding" }, { status: 500 });
+      const body = await res.text();
+      logger.error({ status: res.status, body }, "Backend complete-onboarding failed");
+      return NextResponse.json({ error: "Failed to complete onboarding" }, { status: res.status });
     }
 
     return NextResponse.json({ success: true });

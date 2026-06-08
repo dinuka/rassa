@@ -135,13 +135,10 @@ const SetupWizard = ({ user }: SetupWizardProps) => {
   const handleComplete = async () => {
     setIsLoading(true);
     try {
-      const response = await apiFetch("/api/cv", {
+      const response = await apiFetch("/api/candidate/profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...cvData,
-          userId: user.id,
-        }),
+        body: JSON.stringify(cvData),
       });
 
       if (response.ok) {

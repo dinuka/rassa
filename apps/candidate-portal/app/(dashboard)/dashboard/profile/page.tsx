@@ -1,6 +1,9 @@
 import { redirect } from "next/navigation";
 
+import type { CandidateProfile } from "@repo/shared-types";
+
 import { auth } from "@/lib/auth";
+import env from "@/lib/env";
 
 import ProfileContent from "./ProfileContent";
 
@@ -16,5 +19,16 @@ export default async function ProfilePage() {
     redirect("/signin");
   }
 
-  return <ProfileContent user={session.user} cv={undefined} />;
+  let profile: CandidateProfile | undefined;
+
+  if (session.accessToken) {
+    const res = await fetch(`${env.apiUrl}/candidate/profile`, {
+      headers: { Authorization: `Bearer ${session.accessToken}` },
+    });
+    if (res.ok) {
+      profile = await res.json();
+    }
+  }
+
+  return <ProfileContent user={session.user} profile={profile} />;
 }
