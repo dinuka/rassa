@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useImperativeHandle, useRef, useState } from "react";
 
 import { Award, Briefcase, GraduationCap, Plus, Rocket, Star, User, Wrench, X } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
@@ -86,7 +86,12 @@ const MonthYearPicker = ({
   );
 };
 
+export interface CVFormStepHandle {
+  validate: () => boolean;
+}
+
 interface CVFormStepProps {
+  ref?: React.Ref<CVFormStepHandle>;
   initialData: Partial<CV> | undefined;
   onUpdate: (data: Partial<CV>) => void;
   onNext: () => void;
@@ -96,8 +101,13 @@ interface CVFormStepProps {
   };
 }
 
-const validateEmail = (v: string) =>
-  v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? "Must be a valid email address" : undefined;
+const validateRequired = (v: string, label: string) =>
+  v.trim() ? undefined : `${label} is required`;
+
+const validateEmail = (v: string) => {
+  if (!v.trim()) return "Email is required";
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? undefined : "Must be a valid email address";
+};
 
 const validatePhone = (v: string) => {
   if (!v) return undefined;
@@ -105,29 +115,54 @@ const validatePhone = (v: string) => {
   return /^\+?[1-9]\d{6,14}$/.test(digits) ? undefined : "Must be a valid phone number";
 };
 
+const validateUrl = (v: string) => {
+  if (!v.trim()) return "URL is required";
+  try {
+    new URL(v.trim());
+    return undefined;
+  } catch {
+    return "Must be a valid URL (include https://)";
+  }
+};
+
+type PersonalInfoErrors = {
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  links?: Record<number, { name?: string; href?: string }>;
+  linkInput?: { name?: string; href?: string };
+};
+
 const PersonalInfoForm = ({
   data,
   onChange,
+  errors,
+  onErrorsChange,
+  linkInput,
+  onLinkInputChange,
 }: {
   data?: CV["personalInfo"];
   onChange: (data: CV["personalInfo"]) => void;
+  errors: PersonalInfoErrors;
+  onErrorsChange: (errors: PersonalInfoErrors) => void;
+  linkInput: { name: string; href: string };
+  onLinkInputChange: (v: { name: string; href: string }) => void;
 }) => {
-  const [linkInput, setLinkInput] = useState({ name: "", href: "" });
-  const [linkError, setLinkError] = useState<string | undefined>();
-  const [errors, setErrors] = useState<{ email?: string; phone?: string }>({});
-
   const handleChange = (field: string, value: string) => {
     onChange({ ...data, [field]: value } as CV["personalInfo"]);
   };
 
   const links = data?.links ?? [];
 
+  const setLinkError = (patch: { name?: string; href?: string } | undefined) => {
+    onErrorsChange({ ...errors, linkInput: patch });
+  };
+
   const addLink = () => {
-    if (!linkInput.name.trim() || !linkInput.href.trim()) return;
-    try {
-      new URL(linkInput.href.trim());
-    } catch {
-      setLinkError("Must be a valid URL (include https://)");
+    const nameErr = validateRequired(linkInput.name, "Label");
+    const hrefErr = validateUrl(linkInput.href);
+    if (nameErr || hrefErr) {
+      setLinkError({ name: nameErr, href: hrefErr });
       return;
     }
     setLinkError(undefined);
@@ -135,23 +170,43 @@ const PersonalInfoForm = ({
       ...data,
       links: [...links, { name: linkInput.name.trim(), href: linkInput.href.trim() }],
     } as CV["personalInfo"]);
-    setLinkInput({ name: "", href: "" });
+    onLinkInputChange({ name: "", href: "" });
   };
 
   const removeLink = (index: number) => {
+    const updatedLinkErrors = { ...errors.links };
+    delete updatedLinkErrors[index];
     onChange({ ...data, links: links.filter((_, i) => i !== index) } as CV["personalInfo"]);
+    onErrorsChange({ ...errors, links: updatedLinkErrors });
+  };
+
+  const updateSavedLink = (index: number, field: "name" | "href", value: string) => {
+    const updated = links.map((l, i) => (i === index ? { ...l, [field]: value } : l));
+    onChange({ ...data, links: updated } as CV["personalInfo"]);
+  };
+
+  const validateSavedLink = (index: number, field: "name" | "href", value: string) => {
+    const err = field === "name" ? validateRequired(value, "Label") : validateUrl(value);
+    const linkErrors = { ...errors.links, [index]: { ...errors.links?.[index], [field]: err } };
+    onErrorsChange({ ...errors, links: linkErrors });
   };
 
   return (
     <div className="space-y-4">
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <label className="text-foreground text-sm font-medium">Full Name</label>
+          <label className="text-foreground text-sm font-medium">
+            Full Name <span className="text-destructive">*</span>
+          </label>
           <Input
             value={data?.fullName || ""}
             onChange={(e) => handleChange("fullName", e.target.value)}
+            onBlur={(e) =>
+              onErrorsChange({ ...errors, fullName: validateRequired(e.target.value, "Full Name") })
+            }
             placeholder="John Doe"
           />
+          {errors.fullName && <p className="text-destructive mt-1 text-xs">{errors.fullName}</p>}
         </div>
         <div className="space-y-2">
           <label className="text-foreground text-sm font-medium">Professional Title</label>
@@ -165,12 +220,14 @@ const PersonalInfoForm = ({
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <label className="text-foreground text-sm font-medium">Email</label>
+          <label className="text-foreground text-sm font-medium">
+            Email <span className="text-destructive">*</span>
+          </label>
           <Input
             type="email"
             value={data?.email || ""}
             onChange={(e) => handleChange("email", e.target.value)}
-            onBlur={(e) => setErrors((prev) => ({ ...prev, email: validateEmail(e.target.value) }))}
+            onBlur={(e) => onErrorsChange({ ...errors, email: validateEmail(e.target.value) })}
             placeholder="john@example.com"
           />
           {errors.email && <p className="text-destructive mt-1 text-xs">{errors.email}</p>}
@@ -180,7 +237,7 @@ const PersonalInfoForm = ({
           <Input
             value={data?.phone || ""}
             onChange={(e) => handleChange("phone", e.target.value)}
-            onBlur={(e) => setErrors((prev) => ({ ...prev, phone: validatePhone(e.target.value) }))}
+            onBlur={(e) => onErrorsChange({ ...errors, phone: validatePhone(e.target.value) })}
             placeholder="+1 (555) 123-4567"
           />
           {errors.phone && <p className="text-destructive mt-1 text-xs">{errors.phone}</p>}
@@ -209,70 +266,80 @@ const PersonalInfoForm = ({
       <div className="space-y-2">
         <label className="text-foreground text-sm font-medium">Links</label>
         {links.map((link, index) => (
-          <div key={index} className="flex items-center gap-2">
-            <Input
-              value={link.name}
-              onChange={(e) => {
-                const updated = links.map((l, i) =>
-                  i === index ? { ...l, name: e.target.value } : l,
-                );
-                onChange({ ...data, links: updated } as CV["personalInfo"]);
-              }}
-              placeholder="LinkedIn"
-              className="w-32 shrink-0"
-            />
-            <Input
-              value={link.href}
-              onChange={(e) => {
-                const updated = links.map((l, i) =>
-                  i === index ? { ...l, href: e.target.value } : l,
-                );
-                onChange({ ...data, links: updated } as CV["personalInfo"]);
-              }}
-              placeholder="https://..."
-              className="flex-1"
-            />
-            <button
-              onClick={() => removeLink(index)}
-              className="text-muted-foreground hover:text-destructive shrink-0"
-            >
-              <X className="h-4 w-4" />
-            </button>
+          <div key={index} className="space-y-1">
+            <div className="flex items-center gap-2">
+              <div className="w-32 shrink-0">
+                <Input
+                  value={link.name}
+                  onChange={(e) => updateSavedLink(index, "name", e.target.value)}
+                  onBlur={(e) => validateSavedLink(index, "name", e.target.value)}
+                  placeholder="LinkedIn"
+                />
+                {errors.links?.[index]?.name && (
+                  <p className="text-destructive mt-1 text-xs">{errors.links[index].name}</p>
+                )}
+              </div>
+              <div className="flex-1">
+                <Input
+                  value={link.href}
+                  onChange={(e) => updateSavedLink(index, "href", e.target.value)}
+                  onBlur={(e) => validateSavedLink(index, "href", e.target.value)}
+                  placeholder="https://..."
+                />
+                {errors.links?.[index]?.href && (
+                  <p className="text-destructive mt-1 text-xs">{errors.links[index].href}</p>
+                )}
+              </div>
+              <button
+                onClick={() => removeLink(index)}
+                className="text-muted-foreground hover:text-destructive shrink-0"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         ))}
-        <div className="flex gap-2">
-          <Input
-            value={linkInput.name}
-            onChange={(e) => setLinkInput((p) => ({ ...p, name: e.target.value }))}
-            placeholder="LinkedIn"
-            className="w-32 shrink-0"
-          />
-          <Input
-            value={linkInput.href}
-            onChange={(e) => {
-              setLinkInput((p) => ({ ...p, href: e.target.value }));
-              setLinkError(undefined);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                addLink();
-              }
-            }}
-            placeholder="https://linkedin.com/in/..."
-            className="flex-1"
-          />
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={addLink}
-            disabled={!linkInput.name.trim() || !linkInput.href.trim()}
-            className="shrink-0"
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
+        <div className="space-y-1">
+          <div className="flex gap-2">
+            <div className="w-32 shrink-0">
+              <Input
+                value={linkInput.name}
+                onChange={(e) => {
+                  onLinkInputChange({ ...linkInput, name: e.target.value });
+                  if (errors.linkInput?.name)
+                    setLinkError({ ...errors.linkInput, name: undefined });
+                }}
+                placeholder="LinkedIn"
+              />
+              {errors.linkInput?.name && (
+                <p className="text-destructive mt-1 text-xs">{errors.linkInput.name}</p>
+              )}
+            </div>
+            <div className="flex-1">
+              <Input
+                value={linkInput.href}
+                onChange={(e) => {
+                  onLinkInputChange({ ...linkInput, href: e.target.value });
+                  if (errors.linkInput?.href)
+                    setLinkError({ ...errors.linkInput, href: undefined });
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addLink();
+                  }
+                }}
+                placeholder="https://linkedin.com/in/..."
+              />
+              {errors.linkInput?.href && (
+                <p className="text-destructive mt-1 text-xs">{errors.linkInput.href}</p>
+              )}
+            </div>
+            <Button variant="outline" size="icon" onClick={addLink} className="shrink-0">
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
-        {linkError && <p className="text-destructive mt-1 text-xs">{linkError}</p>}
       </div>
     </div>
   );
@@ -953,7 +1020,7 @@ const ExtraCurricularForm = ({
   );
 };
 
-const CVFormStep = ({ initialData, onUpdate, onNext: _onNext, user }: CVFormStepProps) => {
+const CVFormStep = ({ ref, initialData, onUpdate, onNext: _onNext, user }: CVFormStepProps) => {
   const [activeSection, setActiveSection] = useState<
     | "personal"
     | "experience"
@@ -963,6 +1030,8 @@ const CVFormStep = ({ initialData, onUpdate, onNext: _onNext, user }: CVFormStep
     | "certifications"
     | "extraCurricular"
   >("personal");
+  const [personalInfoErrors, setPersonalInfoErrors] = useState<PersonalInfoErrors>({});
+  const [linkInput, setLinkInput] = useState({ name: "", href: "" });
   const [formData, setFormData] = useState<Partial<CV>>(
     initialData || {
       personalInfo: {
@@ -988,6 +1057,46 @@ const CVFormStep = ({ initialData, onUpdate, onNext: _onNext, user }: CVFormStep
     setFormData(newData);
     onUpdate(newData);
   };
+
+  useImperativeHandle(ref, () => ({
+    validate: () => {
+      const fullNameError = validateRequired(formData.personalInfo?.fullName ?? "", "Full Name");
+      const emailError = validateEmail(formData.personalInfo?.email ?? "");
+      const phoneError = validatePhone(formData.personalInfo?.phone ?? "");
+
+      const links = formData.personalInfo?.links ?? [];
+      const linkErrors: Record<number, { name?: string; href?: string }> = {};
+      links.forEach((link, i) => {
+        const nameErr = validateRequired(link.name, "Label");
+        const hrefErr = validateUrl(link.href);
+        if (nameErr || hrefErr) linkErrors[i] = { name: nameErr, href: hrefErr };
+      });
+
+      const pendingFilled = linkInput.name.trim() || linkInput.href.trim();
+      const linkInputErrors = pendingFilled
+        ? { name: validateRequired(linkInput.name, "Label"), href: validateUrl(linkInput.href) }
+        : undefined;
+      const hasLinkInputError = !!(linkInputErrors?.name || linkInputErrors?.href);
+
+      const newErrors: PersonalInfoErrors = {
+        fullName: fullNameError,
+        email: emailError,
+        phone: phoneError,
+        links: Object.keys(linkErrors).length ? linkErrors : undefined,
+        linkInput: linkInputErrors,
+      };
+      setPersonalInfoErrors(newErrors);
+
+      const hasErrors =
+        !!fullNameError ||
+        !!emailError ||
+        !!phoneError ||
+        Object.keys(linkErrors).length > 0 ||
+        hasLinkInputError;
+      if (hasErrors) setActiveSection("personal");
+      return !hasErrors;
+    },
+  }));
 
   const sections = [
     { id: "personal" as const, name: "Personal Info", icon: User },
@@ -1030,6 +1139,10 @@ const CVFormStep = ({ initialData, onUpdate, onNext: _onNext, user }: CVFormStep
               <PersonalInfoForm
                 data={formData.personalInfo}
                 onChange={(personalInfo) => updateFormData({ personalInfo })}
+                errors={personalInfoErrors}
+                onErrorsChange={setPersonalInfoErrors}
+                linkInput={linkInput}
+                onLinkInputChange={setLinkInput}
               />
             )}
             {activeSection === "experience" && (

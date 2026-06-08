@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { ArrowLeft, ArrowRight, Check, FileText, Upload } from "lucide-react";
 
@@ -19,7 +19,7 @@ import {
 
 import apiFetch from "@/lib/apiFetch";
 
-import CVFormStep from "./steps/CVFormStep";
+import CVFormStep, { type CVFormStepHandle } from "./steps/CVFormStep";
 import CVPreviewStep from "./steps/CVPreviewStep";
 import CVUploadStep from "./steps/CVUploadStep";
 
@@ -97,6 +97,7 @@ const SetupWizard = ({ user }: SetupWizardProps) => {
   const [cvData, setCvData] = useState<Partial<CV> | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const cvFormRef = useRef<CVFormStepHandle>(null);
 
   const handleMethodSelect = (selectedMethod: SetupMethod) => {
     setMethod(selectedMethod);
@@ -188,6 +189,7 @@ const SetupWizard = ({ user }: SetupWizardProps) => {
 
         {currentStep === 2 && isEditing && (
           <CVFormStep
+            ref={cvFormRef}
             initialData={cvData}
             onUpdate={handleCVDataUpdate}
             onNext={handleNext}
@@ -205,6 +207,7 @@ const SetupWizard = ({ user }: SetupWizardProps) => {
 
         {currentStep === 2 && !isEditing && method === "manual" && (
           <CVFormStep
+            ref={cvFormRef}
             initialData={cvData}
             onUpdate={handleCVDataUpdate}
             onNext={handleNext}
@@ -235,7 +238,13 @@ const SetupWizard = ({ user }: SetupWizardProps) => {
             <Check className="ml-2 h-4 w-4" />
           </Button>
         ) : currentStep === 2 ? (
-          <Button onClick={handleNext} disabled={!cvData}>
+          <Button
+            onClick={() => {
+              if (cvFormRef.current && !cvFormRef.current.validate()) return;
+              handleNext();
+            }}
+            disabled={!cvData}
+          >
             Continue
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
