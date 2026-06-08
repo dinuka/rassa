@@ -21,9 +21,7 @@ const Header = () => {
   return (
     <header style={s.header}>
       <div style={s.brand}>
-        <div style={s.logoMark}>
-          <RassaLogoIcon size={16} />
-        </div>
+        <RassaLogoIcon size={30} />
         <span style={s.brandName}>Rassa</span>
         <span style={s.brandSep} />
         <span style={s.brandContext}>Hiring Console</span>
@@ -89,15 +87,6 @@ const s: Record<string, React.CSSProperties> = {
     display: "flex",
     alignItems: "center",
     gap: "10px",
-  },
-  logoMark: {
-    width: "30px",
-    height: "30px",
-    borderRadius: "8px",
-    background: "linear-gradient(135deg, #4f8ef7 0%, #7c3aed 100%)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
   },
   brandName: {
     fontSize: "15px",

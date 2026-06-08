@@ -2,7 +2,18 @@
 
 import { useImperativeHandle, useState } from "react";
 
-import { Award, Briefcase, GraduationCap, Lock, Plus, Rocket, Star, User, Wrench, X } from "lucide-react";
+import {
+  Award,
+  Briefcase,
+  GraduationCap,
+  Lock,
+  Plus,
+  Rocket,
+  Star,
+  User,
+  Wrench,
+  X,
+} from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 
 import type { CV, Certification, Education, Experience, Project } from "@repo/shared-types";
@@ -633,7 +644,12 @@ const EducationForm = ({
         </div>
       ))}
 
-      <Button variant="outline" onClick={addEducation} disabled={!canAddEducation} className="w-full">
+      <Button
+        variant="outline"
+        onClick={addEducation}
+        disabled={!canAddEducation}
+        className="w-full"
+      >
         <Plus className="mr-2 h-4 w-4" />
         Add Education
       </Button>
@@ -908,12 +924,7 @@ const ProjectsForm = ({
         </div>
       ))}
 
-      <Button
-        variant="outline"
-        onClick={addProject}
-        disabled={!canAddProject}
-        className="w-full"
-      >
+      <Button variant="outline" onClick={addProject} disabled={!canAddProject} className="w-full">
         <Plus className="mr-2 h-4 w-4" />
         Add Project
       </Button>
@@ -994,7 +1005,12 @@ const CertificationsForm = ({
         </div>
       ))}
 
-      <Button variant="outline" onClick={addCertification} disabled={!canAddCertification} className="w-full">
+      <Button
+        variant="outline"
+        onClick={addCertification}
+        disabled={!canAddCertification}
+        className="w-full"
+      >
         <Plus className="mr-2 h-4 w-4" />
         Add Certification
       </Button>
@@ -1097,7 +1113,7 @@ const CVFormStep = ({ ref, initialData, onUpdate, onNext: _onNext, user }: CVFor
   );
 
   const personalInfoComplete =
-    !!(formData.personalInfo?.fullName?.trim()) &&
+    !!formData.personalInfo?.fullName?.trim() &&
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.personalInfo?.email ?? "");
 
   const skillsComplete = (formData.skills ?? []).length > 0;
@@ -1114,7 +1130,7 @@ const CVFormStep = ({ ref, initialData, onUpdate, onNext: _onNext, user }: CVFor
     onUpdate(newData);
 
     const nowPersonalComplete =
-      !!(newData.personalInfo?.fullName?.trim()) &&
+      !!newData.personalInfo?.fullName?.trim() &&
       /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newData.personalInfo?.email ?? "");
 
     if (!nowPersonalComplete && activeSection !== "personal") {
@@ -1139,7 +1155,10 @@ const CVFormStep = ({ ref, initialData, onUpdate, onNext: _onNext, user }: CVFor
       if (pendingFilled && !hasLinkInputError) {
         const newLink = { name: linkInput.name.trim(), href: linkInput.href.trim() };
         committedLinks = [...committedLinks, newLink];
-        const updatedPersonalInfo = { ...formData.personalInfo, links: committedLinks } as CV["personalInfo"];
+        const updatedPersonalInfo = {
+          ...formData.personalInfo,
+          links: committedLinks,
+        } as CV["personalInfo"];
         const newData = { ...formData, personalInfo: updatedPersonalInfo };
         setFormData(newData);
         onUpdate(newData);
@@ -1169,7 +1188,8 @@ const CVFormStep = ({ ref, initialData, onUpdate, onNext: _onNext, user }: CVFor
         Object.keys(linkErrors).length > 0 ||
         hasLinkInputError;
 
-      const skillsErr = (formData.skills ?? []).length === 0 ? "At least one skill is required" : undefined;
+      const skillsErr =
+        (formData.skills ?? []).length === 0 ? "At least one skill is required" : undefined;
       if (skillsErr) setSkillsError(skillsErr);
 
       if (hasPersonalErrors) {
@@ -1203,12 +1223,13 @@ const CVFormStep = ({ ref, initialData, onUpdate, onNext: _onNext, user }: CVFor
                 key={section.id}
                 onClick={() => enabled && setActiveSection(section.id)}
                 disabled={!enabled}
-                className={`flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left transition-colors ${activeSection === section.id
+                className={`flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left transition-colors ${
+                  activeSection === section.id
                     ? "bg-primary text-primary-foreground"
                     : enabled
                       ? "text-muted-foreground hover:bg-muted hover:text-foreground"
                       : "text-muted-foreground cursor-not-allowed opacity-40"
-                  }`}
+                }`}
               >
                 <section.icon className="h-4 w-4 shrink-0" />
                 <span className="flex-1">{section.name}</span>

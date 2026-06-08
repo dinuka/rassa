@@ -1,6 +1,7 @@
+import Image from "next/image";
 import { redirect } from "next/navigation";
 
-import { Brain, FileText, Sparkles, Target } from "lucide-react";
+import { Brain, FileText, Target } from "lucide-react";
 
 import { auth } from "@/lib/auth";
 
@@ -42,9 +43,7 @@ export default async function SignInPage({
 
         <div className="relative z-10">
           <div className="mb-2 flex items-center gap-3">
-            <div className="bg-primary flex h-10 w-10 items-center justify-center rounded-xl">
-              <Sparkles className="text-primary-foreground h-5 w-5" />
-            </div>
+            <Image src="/logo.png" alt="Rassa Jobs" width={48} height={48} />
             <span className="text-foreground text-2xl font-bold">Rassa</span>
           </div>
           <p className="text-muted-foreground text-sm">AI-Powered Career Platform</p>
@@ -86,9 +85,7 @@ export default async function SignInPage({
         <div className="w-full max-w-md space-y-8">
           {/* Mobile logo */}
           <div className="mb-8 flex items-center justify-center gap-3 lg:hidden">
-            <div className="bg-primary flex h-10 w-10 items-center justify-center rounded-xl">
-              <Sparkles className="text-primary-foreground h-5 w-5" />
-            </div>
+            <Image src="/logo.png" alt="Rassa Jobs" width={48} height={48} />
             <span className="text-foreground text-2xl font-bold">Rassa</span>
           </div>
 

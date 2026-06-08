@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { useSession } from "next-auth/react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -14,7 +15,6 @@ import {
   LayoutDashboard,
   LogOut,
   Mail,
-  Sparkles,
   User,
   Wrench,
 } from "lucide-react";
@@ -45,9 +45,7 @@ const Sidebar = () => {
       )}
     >
       <div className="border-sidebar-border flex h-16 items-center gap-3 border-b px-4">
-        <div className="bg-sidebar-primary flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg">
-          <Sparkles className="text-sidebar-primary-foreground h-5 w-5" />
-        </div>
+        <Image src="/logo.png" alt="Rassa Jobs" width={36} height={36} className="flex-shrink-0" />
         {!collapsed && <span className="text-sidebar-foreground text-lg font-semibold">Rassa</span>}
       </div>
 

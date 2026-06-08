@@ -1,6 +1,8 @@
 "use client";
 
-import { LogOut, Sparkles } from "lucide-react";
+import Image from "next/image";
+
+import { LogOut } from "lucide-react";
 
 import { useLogout } from "@repo/auth";
 
@@ -13,9 +15,7 @@ function OnboardingHeader() {
     <header className="border-border bg-card/50 sticky top-0 z-50 border-b backdrop-blur-sm">
       <div className="mx-auto flex max-w-4xl items-center justify-between gap-3 px-4 py-4">
         <div className="flex items-center gap-3">
-          <div className="bg-primary flex h-9 w-9 items-center justify-center rounded-lg">
-            <Sparkles className="text-primary-foreground h-4 w-4" />
-          </div>
+          <Image src="/logo.png" alt="Rassa Jobs" width={36} height={36} />
           <span className="text-foreground text-lg font-semibold">Rassa</span>
         </div>
         <button
