@@ -1,8 +1,8 @@
 "use client";
 
-import { useImperativeHandle, useRef, useState } from "react";
+import { useImperativeHandle, useState } from "react";
 
-import { Award, Briefcase, GraduationCap, Plus, Rocket, Star, User, Wrench, X } from "lucide-react";
+import { Award, Briefcase, GraduationCap, Lock, Plus, Rocket, Star, User, Wrench, X } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 
 import type { CV, Certification, Education, Experience, Project } from "@repo/shared-types";
@@ -566,6 +566,10 @@ const EducationForm = ({
     onChange(data.filter((_, i) => i !== index));
   };
 
+  const lastEdu = data.length > 0 ? data[data.length - 1] : null;
+  const canAddEducation =
+    !lastEdu || (lastEdu.institution.trim() !== "" && lastEdu.degree.trim() !== "");
+
   return (
     <div className="space-y-6">
       {data.map((edu, index) => (
@@ -578,7 +582,9 @@ const EducationForm = ({
           </button>
 
           <div className="space-y-2">
-            <label className="text-foreground text-sm font-medium">Institution</label>
+            <label className="text-foreground text-sm font-medium">
+              Institution <span className="text-destructive">*</span>
+            </label>
             <Input
               value={edu.institution}
               onChange={(e) => updateEducation(index, { institution: e.target.value })}
@@ -587,7 +593,9 @@ const EducationForm = ({
           </div>
 
           <div className="space-y-2">
-            <label className="text-foreground text-sm font-medium">Degree</label>
+            <label className="text-foreground text-sm font-medium">
+              Degree <span className="text-destructive">*</span>
+            </label>
             <Input
               value={edu.degree}
               onChange={(e) => updateEducation(index, { degree: e.target.value })}
@@ -625,7 +633,7 @@ const EducationForm = ({
         </div>
       ))}
 
-      <Button variant="outline" onClick={addEducation} className="w-full">
+      <Button variant="outline" onClick={addEducation} disabled={!canAddEducation} className="w-full">
         <Plus className="mr-2 h-4 w-4" />
         Add Education
       </Button>
@@ -633,13 +641,24 @@ const EducationForm = ({
   );
 };
 
-const SkillsForm = ({ data, onChange }: { data: string[]; onChange: (data: string[]) => void }) => {
+const SkillsForm = ({
+  data,
+  onChange,
+  error,
+  onErrorClear,
+}: {
+  data: string[];
+  onChange: (data: string[]) => void;
+  error?: string;
+  onErrorClear?: () => void;
+}) => {
   const [inputValue, setInputValue] = useState("");
 
   const addSkill = () => {
     if (inputValue.trim() && !data.includes(inputValue.trim())) {
       onChange([...data, inputValue.trim()]);
       setInputValue("");
+      onErrorClear?.();
     }
   };
 
@@ -669,17 +688,23 @@ const SkillsForm = ({ data, onChange }: { data: string[]; onChange: (data: strin
 
   return (
     <div className="space-y-6">
-      <div className="flex gap-2">
-        <Input
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Type a skill and press Enter"
-          className="flex-1"
-        />
-        <Button onClick={addSkill} disabled={!inputValue.trim()}>
-          <Plus className="h-4 w-4" />
-        </Button>
+      <div className="space-y-1">
+        <label className="text-foreground text-sm font-medium">
+          Skills <span className="text-destructive">*</span>
+        </label>
+        <div className="flex gap-2">
+          <Input
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Type a skill and press Enter"
+            className="flex-1"
+          />
+          <Button onClick={addSkill} disabled={!inputValue.trim()}>
+            <Plus className="h-4 w-4" />
+          </Button>
+        </div>
+        {error && <p className="text-destructive mt-1 text-xs">{error}</p>}
       </div>
 
       {data.length > 0 && (
@@ -707,7 +732,10 @@ const SkillsForm = ({ data, onChange }: { data: string[]; onChange: (data: strin
                 key={skill}
                 variant="outline"
                 className="hover:bg-muted cursor-pointer"
-                onClick={() => onChange([...data, skill])}
+                onClick={() => {
+                  onChange([...data, skill]);
+                  onErrorClear?.();
+                }}
               >
                 <Plus className="mr-1 h-3 w-3" />
                 {skill}
@@ -765,6 +793,9 @@ const ProjectsForm = ({
     });
   };
 
+  const lastProj = data.length > 0 ? data[data.length - 1] : null;
+  const canAddProject = !lastProj || lastProj.name.trim() !== "";
+
   return (
     <div className="space-y-6">
       {data.map((proj, index) => (
@@ -778,7 +809,9 @@ const ProjectsForm = ({
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-foreground text-sm font-medium">Project Name</label>
+              <label className="text-foreground text-sm font-medium">
+                Project Name <span className="text-destructive">*</span>
+              </label>
               <Input
                 value={proj.name}
                 onChange={(e) => update(index, { name: e.target.value })}
@@ -875,7 +908,12 @@ const ProjectsForm = ({
         </div>
       ))}
 
-      <Button variant="outline" onClick={addProject} className="w-full">
+      <Button
+        variant="outline"
+        onClick={addProject}
+        disabled={!canAddProject}
+        className="w-full"
+      >
         <Plus className="mr-2 h-4 w-4" />
         Add Project
       </Button>
@@ -903,6 +941,9 @@ const CertificationsForm = ({
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 30 }, (_, i) => currentYear - i);
 
+  const lastCert = data.length > 0 ? data[data.length - 1] : null;
+  const canAddCertification = !lastCert || lastCert.name.trim() !== "";
+
   return (
     <div className="space-y-6">
       {data.map((cert, index) => (
@@ -916,7 +957,9 @@ const CertificationsForm = ({
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-foreground text-sm font-medium">Certification Name</label>
+              <label className="text-foreground text-sm font-medium">
+                Certification Name <span className="text-destructive">*</span>
+              </label>
               <Input
                 value={cert.name}
                 onChange={(e) => update(index, { name: e.target.value })}
@@ -951,7 +994,7 @@ const CertificationsForm = ({
         </div>
       ))}
 
-      <Button variant="outline" onClick={addCertification} className="w-full">
+      <Button variant="outline" onClick={addCertification} disabled={!canAddCertification} className="w-full">
         <Plus className="mr-2 h-4 w-4" />
         Add Certification
       </Button>
@@ -1031,6 +1074,7 @@ const CVFormStep = ({ ref, initialData, onUpdate, onNext: _onNext, user }: CVFor
     | "extraCurricular"
   >("personal");
   const [personalInfoErrors, setPersonalInfoErrors] = useState<PersonalInfoErrors>({});
+  const [skillsError, setSkillsError] = useState<string | undefined>();
   const [linkInput, setLinkInput] = useState({ name: "", href: "" });
   const [formData, setFormData] = useState<Partial<CV>>(
     initialData || {
@@ -1052,10 +1096,30 @@ const CVFormStep = ({ ref, initialData, onUpdate, onNext: _onNext, user }: CVFor
     },
   );
 
+  const personalInfoComplete =
+    !!(formData.personalInfo?.fullName?.trim()) &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.personalInfo?.email ?? "");
+
+  const skillsComplete = (formData.skills ?? []).length > 0;
+
+  const sectionEnabled = (id: string) => {
+    if (id === "personal") return true;
+    if (id === "skills") return personalInfoComplete;
+    return personalInfoComplete && skillsComplete;
+  };
+
   const updateFormData = (updates: Partial<CV>) => {
     const newData = { ...formData, ...updates };
     setFormData(newData);
     onUpdate(newData);
+
+    const nowPersonalComplete =
+      !!(newData.personalInfo?.fullName?.trim()) &&
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newData.personalInfo?.email ?? "");
+
+    if (!nowPersonalComplete && activeSection !== "personal") {
+      setActiveSection("personal");
+    }
   };
 
   useImperativeHandle(ref, () => ({
@@ -1064,37 +1128,57 @@ const CVFormStep = ({ ref, initialData, onUpdate, onNext: _onNext, user }: CVFor
       const emailError = validateEmail(formData.personalInfo?.email ?? "");
       const phoneError = validatePhone(formData.personalInfo?.phone ?? "");
 
-      const links = formData.personalInfo?.links ?? [];
-      const linkErrors: Record<number, { name?: string; href?: string }> = {};
-      links.forEach((link, i) => {
-        const nameErr = validateRequired(link.name, "Label");
-        const hrefErr = validateUrl(link.href);
-        if (nameErr || hrefErr) linkErrors[i] = { name: nameErr, href: hrefErr };
-      });
-
       const pendingFilled = linkInput.name.trim() || linkInput.href.trim();
       const linkInputErrors = pendingFilled
         ? { name: validateRequired(linkInput.name, "Label"), href: validateUrl(linkInput.href) }
         : undefined;
       const hasLinkInputError = !!(linkInputErrors?.name || linkInputErrors?.href);
 
+      // Flush a valid pending link into formData before proceeding
+      let committedLinks = formData.personalInfo?.links ?? [];
+      if (pendingFilled && !hasLinkInputError) {
+        const newLink = { name: linkInput.name.trim(), href: linkInput.href.trim() };
+        committedLinks = [...committedLinks, newLink];
+        const updatedPersonalInfo = { ...formData.personalInfo, links: committedLinks } as CV["personalInfo"];
+        const newData = { ...formData, personalInfo: updatedPersonalInfo };
+        setFormData(newData);
+        onUpdate(newData);
+        setLinkInput({ name: "", href: "" });
+      }
+
+      const linkErrors: Record<number, { name?: string; href?: string }> = {};
+      committedLinks.forEach((link, i) => {
+        const nameErr = validateRequired(link.name, "Label");
+        const hrefErr = validateUrl(link.href);
+        if (nameErr || hrefErr) linkErrors[i] = { name: nameErr, href: hrefErr };
+      });
+
       const newErrors: PersonalInfoErrors = {
         fullName: fullNameError,
         email: emailError,
         phone: phoneError,
         links: Object.keys(linkErrors).length ? linkErrors : undefined,
-        linkInput: linkInputErrors,
+        linkInput: pendingFilled && !hasLinkInputError ? undefined : linkInputErrors,
       };
       setPersonalInfoErrors(newErrors);
 
-      const hasErrors =
+      const hasPersonalErrors =
         !!fullNameError ||
         !!emailError ||
         !!phoneError ||
         Object.keys(linkErrors).length > 0 ||
         hasLinkInputError;
-      if (hasErrors) setActiveSection("personal");
-      return !hasErrors;
+
+      const skillsErr = (formData.skills ?? []).length === 0 ? "At least one skill is required" : undefined;
+      if (skillsErr) setSkillsError(skillsErr);
+
+      if (hasPersonalErrors) {
+        setActiveSection("personal");
+      } else if (skillsErr) {
+        setActiveSection("skills");
+      }
+
+      return !hasPersonalErrors && !skillsErr;
     },
   }));
 
@@ -1112,20 +1196,26 @@ const CVFormStep = ({ ref, initialData, onUpdate, onNext: _onNext, user }: CVFor
     <div className="grid gap-6 md:grid-cols-4">
       <div className="md:col-span-1">
         <nav className="space-y-1">
-          {sections.map((section) => (
-            <button
-              key={section.id}
-              onClick={() => setActiveSection(section.id)}
-              className={`flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left transition-colors ${
-                activeSection === section.id
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              }`}
-            >
-              <section.icon className="h-4 w-4" />
-              {section.name}
-            </button>
-          ))}
+          {sections.map((section) => {
+            const enabled = sectionEnabled(section.id);
+            return (
+              <button
+                key={section.id}
+                onClick={() => enabled && setActiveSection(section.id)}
+                disabled={!enabled}
+                className={`flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left transition-colors ${activeSection === section.id
+                    ? "bg-primary text-primary-foreground"
+                    : enabled
+                      ? "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      : "text-muted-foreground cursor-not-allowed opacity-40"
+                  }`}
+              >
+                <section.icon className="h-4 w-4 shrink-0" />
+                <span className="flex-1">{section.name}</span>
+                {!enabled && <Lock className="h-3 w-3 shrink-0" />}
+              </button>
+            );
+          })}
         </nav>
       </div>
 
@@ -1161,6 +1251,8 @@ const CVFormStep = ({ ref, initialData, onUpdate, onNext: _onNext, user }: CVFor
               <SkillsForm
                 data={formData.skills || []}
                 onChange={(skills) => updateFormData({ skills })}
+                error={skillsError}
+                onErrorClear={() => setSkillsError(undefined)}
               />
             )}
             {activeSection === "projects" && (
