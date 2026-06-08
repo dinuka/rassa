@@ -2,13 +2,19 @@ import { z } from "zod";
 
 export const LinkSchema = z.object({
   name: z.string(),
-  href: z.string(),
+  href: z.string().url("Must be a valid URL (include https://)"),
 });
 
 export const PersonalInfoSchema = z.object({
   fullName: z.string(),
-  email: z.string(),
-  phone: z.string().optional(),
+  email: z.string().email("Must be a valid email address"),
+  phone: z
+    .string()
+    .optional()
+    .refine(
+      (v) => !v || /^\+?[1-9]\d{6,14}$/.test(v.replace(/[\s\-().]/g, "")),
+      "Must be a valid phone number (e.g. +44 7700 900000)",
+    ),
   location: z.string().optional(),
   title: z.string().optional(),
   summary: z.string().optional(),

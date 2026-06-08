@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useImperativeHandle, useState } from "react";
 
-import { Award, Briefcase, GraduationCap, Plus, Rocket, Star, User, Wrench, X } from "lucide-react";
+import { Award, Briefcase, GraduationCap, Lock, Plus, Rocket, Star, User, Wrench, X } from "lucide-react";
+import { v4 as uuidv4 } from "uuid";
 
 import type { CV, Certification, Education, Experience, Project } from "@repo/shared-types";
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Input } from "@repo/ui";
@@ -34,22 +35,29 @@ const MonthYearPicker = ({
   onChange: (v: string) => void;
   disabled?: boolean;
 }) => {
-  const [year, month] = value ? value.split("-") : ["", ""];
+  const [savedYear, savedMonth] = value ? value.split("-") : ["", ""];
+  const [year, setYear] = useState(savedYear);
+  const [month, setMonth] = useState(savedMonth);
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 50 }, (_, i) => currentYear - i);
 
-  const emit = (y: string, m: string) => {
-    if (y && m) onChange(`${y}-${m}`);
-    else onChange("");
+  const handleMonthChange = (m: string) => {
+    setMonth(m);
+    if (year && m) onChange(`${year}-${m}`);
+  };
+
+  const handleYearChange = (y: string) => {
+    setYear(y);
+    if (y && month) onChange(`${y}-${month}`);
   };
 
   return (
     <div className="flex gap-2">
       <select
         className={selectClass}
-        value={month || ""}
+        value={month}
         disabled={disabled}
-        onChange={(e) => emit(year, e.target.value)}
+        onChange={(e) => handleMonthChange(e.target.value)}
       >
         <option value="">Month</option>
         {MONTHS.map((name, i) => {
@@ -63,9 +71,9 @@ const MonthYearPicker = ({
       </select>
       <select
         className={selectClass}
-        value={year || ""}
+        value={year}
         disabled={disabled}
-        onChange={(e) => emit(e.target.value, month)}
+        onChange={(e) => handleYearChange(e.target.value)}
       >
         <option value="">Year</option>
         {years.map((y) => (
@@ -78,7 +86,12 @@ const MonthYearPicker = ({
   );
 };
 
+export interface CVFormStepHandle {
+  validate: () => boolean;
+}
+
 interface CVFormStepProps {
+  ref?: React.Ref<CVFormStepHandle>;
   initialData: Partial<CV> | undefined;
   onUpdate: (data: Partial<CV>) => void;
   onNext: () => void;
@@ -88,45 +101,112 @@ interface CVFormStepProps {
   };
 }
 
+const validateRequired = (v: string, label: string) =>
+  v.trim() ? undefined : `${label} is required`;
+
+const validateEmail = (v: string) => {
+  if (!v.trim()) return "Email is required";
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? undefined : "Must be a valid email address";
+};
+
+const validatePhone = (v: string) => {
+  if (!v) return undefined;
+  const digits = v.replace(/[\s\-().]/g, "");
+  return /^\+?[1-9]\d{6,14}$/.test(digits) ? undefined : "Must be a valid phone number";
+};
+
+const validateUrl = (v: string) => {
+  if (!v.trim()) return "URL is required";
+  try {
+    new URL(v.trim());
+    return undefined;
+  } catch {
+    return "Must be a valid URL (include https://)";
+  }
+};
+
+type PersonalInfoErrors = {
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  links?: Record<number, { name?: string; href?: string }>;
+  linkInput?: { name?: string; href?: string };
+};
+
 const PersonalInfoForm = ({
   data,
   onChange,
+  errors,
+  onErrorsChange,
+  linkInput,
+  onLinkInputChange,
 }: {
   data?: CV["personalInfo"];
   onChange: (data: CV["personalInfo"]) => void;
+  errors: PersonalInfoErrors;
+  onErrorsChange: (errors: PersonalInfoErrors) => void;
+  linkInput: { name: string; href: string };
+  onLinkInputChange: (v: { name: string; href: string }) => void;
 }) => {
-  const [linkInput, setLinkInput] = useState({ name: "", href: "" });
-
   const handleChange = (field: string, value: string) => {
     onChange({ ...data, [field]: value } as CV["personalInfo"]);
   };
 
   const links = data?.links ?? [];
 
+  const setLinkError = (patch: { name?: string; href?: string } | undefined) => {
+    onErrorsChange({ ...errors, linkInput: patch });
+  };
+
   const addLink = () => {
-    if (linkInput.name.trim() && linkInput.href.trim()) {
-      onChange({
-        ...data,
-        links: [...links, { name: linkInput.name.trim(), href: linkInput.href.trim() }],
-      } as CV["personalInfo"]);
-      setLinkInput({ name: "", href: "" });
+    const nameErr = validateRequired(linkInput.name, "Label");
+    const hrefErr = validateUrl(linkInput.href);
+    if (nameErr || hrefErr) {
+      setLinkError({ name: nameErr, href: hrefErr });
+      return;
     }
+    setLinkError(undefined);
+    onChange({
+      ...data,
+      links: [...links, { name: linkInput.name.trim(), href: linkInput.href.trim() }],
+    } as CV["personalInfo"]);
+    onLinkInputChange({ name: "", href: "" });
   };
 
   const removeLink = (index: number) => {
+    const updatedLinkErrors = { ...errors.links };
+    delete updatedLinkErrors[index];
     onChange({ ...data, links: links.filter((_, i) => i !== index) } as CV["personalInfo"]);
+    onErrorsChange({ ...errors, links: updatedLinkErrors });
+  };
+
+  const updateSavedLink = (index: number, field: "name" | "href", value: string) => {
+    const updated = links.map((l, i) => (i === index ? { ...l, [field]: value } : l));
+    onChange({ ...data, links: updated } as CV["personalInfo"]);
+  };
+
+  const validateSavedLink = (index: number, field: "name" | "href", value: string) => {
+    const err = field === "name" ? validateRequired(value, "Label") : validateUrl(value);
+    const linkErrors = { ...errors.links, [index]: { ...errors.links?.[index], [field]: err } };
+    onErrorsChange({ ...errors, links: linkErrors });
   };
 
   return (
     <div className="space-y-4">
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <label className="text-foreground text-sm font-medium">Full Name</label>
+          <label className="text-foreground text-sm font-medium">
+            Full Name <span className="text-destructive">*</span>
+          </label>
           <Input
             value={data?.fullName || ""}
             onChange={(e) => handleChange("fullName", e.target.value)}
+            onBlur={(e) =>
+              onErrorsChange({ ...errors, fullName: validateRequired(e.target.value, "Full Name") })
+            }
             placeholder="John Doe"
           />
+          {errors.fullName && <p className="text-destructive mt-1 text-xs">{errors.fullName}</p>}
         </div>
         <div className="space-y-2">
           <label className="text-foreground text-sm font-medium">Professional Title</label>
@@ -140,21 +220,27 @@ const PersonalInfoForm = ({
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <label className="text-foreground text-sm font-medium">Email</label>
+          <label className="text-foreground text-sm font-medium">
+            Email <span className="text-destructive">*</span>
+          </label>
           <Input
             type="email"
             value={data?.email || ""}
             onChange={(e) => handleChange("email", e.target.value)}
+            onBlur={(e) => onErrorsChange({ ...errors, email: validateEmail(e.target.value) })}
             placeholder="john@example.com"
           />
+          {errors.email && <p className="text-destructive mt-1 text-xs">{errors.email}</p>}
         </div>
         <div className="space-y-2">
           <label className="text-foreground text-sm font-medium">Phone</label>
           <Input
             value={data?.phone || ""}
             onChange={(e) => handleChange("phone", e.target.value)}
+            onBlur={(e) => onErrorsChange({ ...errors, phone: validatePhone(e.target.value) })}
             placeholder="+1 (555) 123-4567"
           />
+          {errors.phone && <p className="text-destructive mt-1 text-xs">{errors.phone}</p>}
         </div>
       </div>
 
@@ -180,65 +266,79 @@ const PersonalInfoForm = ({
       <div className="space-y-2">
         <label className="text-foreground text-sm font-medium">Links</label>
         {links.map((link, index) => (
-          <div key={index} className="flex items-center gap-2">
-            <Input
-              value={link.name}
-              onChange={(e) => {
-                const updated = links.map((l, i) =>
-                  i === index ? { ...l, name: e.target.value } : l,
-                );
-                onChange({ ...data, links: updated } as CV["personalInfo"]);
-              }}
-              placeholder="LinkedIn"
-              className="w-32 shrink-0"
-            />
-            <Input
-              value={link.href}
-              onChange={(e) => {
-                const updated = links.map((l, i) =>
-                  i === index ? { ...l, href: e.target.value } : l,
-                );
-                onChange({ ...data, links: updated } as CV["personalInfo"]);
-              }}
-              placeholder="https://..."
-              className="flex-1"
-            />
-            <button
-              onClick={() => removeLink(index)}
-              className="text-muted-foreground hover:text-destructive shrink-0"
-            >
-              <X className="h-4 w-4" />
-            </button>
+          <div key={index} className="space-y-1">
+            <div className="flex items-center gap-2">
+              <div className="w-32 shrink-0">
+                <Input
+                  value={link.name}
+                  onChange={(e) => updateSavedLink(index, "name", e.target.value)}
+                  onBlur={(e) => validateSavedLink(index, "name", e.target.value)}
+                  placeholder="LinkedIn"
+                />
+                {errors.links?.[index]?.name && (
+                  <p className="text-destructive mt-1 text-xs">{errors.links[index].name}</p>
+                )}
+              </div>
+              <div className="flex-1">
+                <Input
+                  value={link.href}
+                  onChange={(e) => updateSavedLink(index, "href", e.target.value)}
+                  onBlur={(e) => validateSavedLink(index, "href", e.target.value)}
+                  placeholder="https://..."
+                />
+                {errors.links?.[index]?.href && (
+                  <p className="text-destructive mt-1 text-xs">{errors.links[index].href}</p>
+                )}
+              </div>
+              <button
+                onClick={() => removeLink(index)}
+                className="text-muted-foreground hover:text-destructive shrink-0"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         ))}
-        <div className="flex gap-2">
-          <Input
-            value={linkInput.name}
-            onChange={(e) => setLinkInput((p) => ({ ...p, name: e.target.value }))}
-            placeholder="LinkedIn"
-            className="w-32 shrink-0"
-          />
-          <Input
-            value={linkInput.href}
-            onChange={(e) => setLinkInput((p) => ({ ...p, href: e.target.value }))}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                addLink();
-              }
-            }}
-            placeholder="https://linkedin.com/in/..."
-            className="flex-1"
-          />
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={addLink}
-            disabled={!linkInput.name.trim() || !linkInput.href.trim()}
-            className="shrink-0"
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
+        <div className="space-y-1">
+          <div className="flex gap-2">
+            <div className="w-32 shrink-0">
+              <Input
+                value={linkInput.name}
+                onChange={(e) => {
+                  onLinkInputChange({ ...linkInput, name: e.target.value });
+                  if (errors.linkInput?.name)
+                    setLinkError({ ...errors.linkInput, name: undefined });
+                }}
+                placeholder="LinkedIn"
+              />
+              {errors.linkInput?.name && (
+                <p className="text-destructive mt-1 text-xs">{errors.linkInput.name}</p>
+              )}
+            </div>
+            <div className="flex-1">
+              <Input
+                value={linkInput.href}
+                onChange={(e) => {
+                  onLinkInputChange({ ...linkInput, href: e.target.value });
+                  if (errors.linkInput?.href)
+                    setLinkError({ ...errors.linkInput, href: undefined });
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addLink();
+                  }
+                }}
+                placeholder="https://linkedin.com/in/..."
+              />
+              {errors.linkInput?.href && (
+                <p className="text-destructive mt-1 text-xs">{errors.linkInput.href}</p>
+              )}
+            </div>
+            <Button variant="outline" size="icon" onClick={addLink} className="shrink-0">
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
     </div>
@@ -256,7 +356,7 @@ const ExperienceForm = ({
     onChange([
       ...data,
       {
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         company: "",
         title: "",
         location: "",
@@ -280,8 +380,9 @@ const ExperienceForm = ({
   };
 
   const addHighlight = (expIndex: number) => {
-    const highlights = [...(data[expIndex].highlights ?? []), ""];
-    updateExperience(expIndex, { highlights });
+    const existing = data[expIndex].highlights ?? [];
+    if (existing.some((h) => !h.trim())) return;
+    updateExperience(expIndex, { highlights: [...existing, ""] });
   };
 
   const updateHighlight = (expIndex: number, hIndex: number, value: string) => {
@@ -294,6 +395,13 @@ const ExperienceForm = ({
     const highlights = (data[expIndex].highlights ?? []).filter((_, i) => i !== hIndex);
     updateExperience(expIndex, { highlights });
   };
+
+  const lastExp = data.length > 0 ? data[data.length - 1] : null;
+  const canAddExperience =
+    !lastExp ||
+    (lastExp.company.trim() !== "" &&
+      lastExp.title.trim() !== "" &&
+      lastExp.startDate.trim() !== "");
 
   return (
     <div className="space-y-6">
@@ -308,7 +416,9 @@ const ExperienceForm = ({
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-foreground text-sm font-medium">Company</label>
+              <label className="text-foreground text-sm font-medium">
+                Company <span className="text-destructive">*</span>
+              </label>
               <Input
                 value={exp.company}
                 onChange={(e) => updateExperience(index, { company: e.target.value })}
@@ -316,7 +426,9 @@ const ExperienceForm = ({
               />
             </div>
             <div className="space-y-2">
-              <label className="text-foreground text-sm font-medium">Job Title</label>
+              <label className="text-foreground text-sm font-medium">
+                Job Title <span className="text-destructive">*</span>
+              </label>
               <Input
                 value={exp.title}
                 onChange={(e) => updateExperience(index, { title: e.target.value })}
@@ -336,7 +448,9 @@ const ExperienceForm = ({
 
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
-              <label className="text-foreground text-sm font-medium">Start Date</label>
+              <label className="text-foreground text-sm font-medium">
+                Start Date <span className="text-destructive">*</span>
+              </label>
               <MonthYearPicker
                 value={exp.startDate || ""}
                 onChange={(v) => updateExperience(index, { startDate: v })}
@@ -397,6 +511,7 @@ const ExperienceForm = ({
               variant="outline"
               size="sm"
               onClick={() => addHighlight(index)}
+              disabled={(exp.highlights ?? []).some((h) => !h.trim())}
               className="w-full"
             >
               <Plus className="mr-2 h-4 w-4" />
@@ -406,7 +521,12 @@ const ExperienceForm = ({
         </div>
       ))}
 
-      <Button variant="outline" onClick={addExperience} className="w-full">
+      <Button
+        variant="outline"
+        onClick={addExperience}
+        disabled={!canAddExperience}
+        className="w-full"
+      >
         <Plus className="mr-2 h-4 w-4" />
         Add Experience
       </Button>
@@ -425,7 +545,7 @@ const EducationForm = ({
     onChange([
       ...data,
       {
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         institution: "",
         degree: "",
         field: "",
@@ -446,6 +566,10 @@ const EducationForm = ({
     onChange(data.filter((_, i) => i !== index));
   };
 
+  const lastEdu = data.length > 0 ? data[data.length - 1] : null;
+  const canAddEducation =
+    !lastEdu || (lastEdu.institution.trim() !== "" && lastEdu.degree.trim() !== "");
+
   return (
     <div className="space-y-6">
       {data.map((edu, index) => (
@@ -458,7 +582,9 @@ const EducationForm = ({
           </button>
 
           <div className="space-y-2">
-            <label className="text-foreground text-sm font-medium">Institution</label>
+            <label className="text-foreground text-sm font-medium">
+              Institution <span className="text-destructive">*</span>
+            </label>
             <Input
               value={edu.institution}
               onChange={(e) => updateEducation(index, { institution: e.target.value })}
@@ -467,7 +593,9 @@ const EducationForm = ({
           </div>
 
           <div className="space-y-2">
-            <label className="text-foreground text-sm font-medium">Degree</label>
+            <label className="text-foreground text-sm font-medium">
+              Degree <span className="text-destructive">*</span>
+            </label>
             <Input
               value={edu.degree}
               onChange={(e) => updateEducation(index, { degree: e.target.value })}
@@ -505,7 +633,7 @@ const EducationForm = ({
         </div>
       ))}
 
-      <Button variant="outline" onClick={addEducation} className="w-full">
+      <Button variant="outline" onClick={addEducation} disabled={!canAddEducation} className="w-full">
         <Plus className="mr-2 h-4 w-4" />
         Add Education
       </Button>
@@ -513,13 +641,24 @@ const EducationForm = ({
   );
 };
 
-const SkillsForm = ({ data, onChange }: { data: string[]; onChange: (data: string[]) => void }) => {
+const SkillsForm = ({
+  data,
+  onChange,
+  error,
+  onErrorClear,
+}: {
+  data: string[];
+  onChange: (data: string[]) => void;
+  error?: string;
+  onErrorClear?: () => void;
+}) => {
   const [inputValue, setInputValue] = useState("");
 
   const addSkill = () => {
     if (inputValue.trim() && !data.includes(inputValue.trim())) {
       onChange([...data, inputValue.trim()]);
       setInputValue("");
+      onErrorClear?.();
     }
   };
 
@@ -549,17 +688,23 @@ const SkillsForm = ({ data, onChange }: { data: string[]; onChange: (data: strin
 
   return (
     <div className="space-y-6">
-      <div className="flex gap-2">
-        <Input
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Type a skill and press Enter"
-          className="flex-1"
-        />
-        <Button onClick={addSkill} disabled={!inputValue.trim()}>
-          <Plus className="h-4 w-4" />
-        </Button>
+      <div className="space-y-1">
+        <label className="text-foreground text-sm font-medium">
+          Skills <span className="text-destructive">*</span>
+        </label>
+        <div className="flex gap-2">
+          <Input
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Type a skill and press Enter"
+            className="flex-1"
+          />
+          <Button onClick={addSkill} disabled={!inputValue.trim()}>
+            <Plus className="h-4 w-4" />
+          </Button>
+        </div>
+        {error && <p className="text-destructive mt-1 text-xs">{error}</p>}
       </div>
 
       {data.length > 0 && (
@@ -587,7 +732,10 @@ const SkillsForm = ({ data, onChange }: { data: string[]; onChange: (data: strin
                 key={skill}
                 variant="outline"
                 className="hover:bg-muted cursor-pointer"
-                onClick={() => onChange([...data, skill])}
+                onClick={() => {
+                  onChange([...data, skill]);
+                  onErrorClear?.();
+                }}
               >
                 <Plus className="mr-1 h-3 w-3" />
                 {skill}
@@ -613,7 +761,7 @@ const ProjectsForm = ({
     onChange([
       ...data,
       {
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         name: "",
         role: "",
         startDate: "",
@@ -645,6 +793,9 @@ const ProjectsForm = ({
     });
   };
 
+  const lastProj = data.length > 0 ? data[data.length - 1] : null;
+  const canAddProject = !lastProj || lastProj.name.trim() !== "";
+
   return (
     <div className="space-y-6">
       {data.map((proj, index) => (
@@ -658,7 +809,9 @@ const ProjectsForm = ({
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-foreground text-sm font-medium">Project Name</label>
+              <label className="text-foreground text-sm font-medium">
+                Project Name <span className="text-destructive">*</span>
+              </label>
               <Input
                 value={proj.name}
                 onChange={(e) => update(index, { name: e.target.value })}
@@ -755,7 +908,12 @@ const ProjectsForm = ({
         </div>
       ))}
 
-      <Button variant="outline" onClick={addProject} className="w-full">
+      <Button
+        variant="outline"
+        onClick={addProject}
+        disabled={!canAddProject}
+        className="w-full"
+      >
         <Plus className="mr-2 h-4 w-4" />
         Add Project
       </Button>
@@ -771,7 +929,7 @@ const CertificationsForm = ({
   onChange: (data: Certification[]) => void;
 }) => {
   const addCertification = () => {
-    onChange([...data, { id: crypto.randomUUID(), name: "", issuer: "", date: "" }]);
+    onChange([...data, { id: uuidv4(), name: "", issuer: "", date: "" }]);
   };
 
   const update = (index: number, updates: Partial<Certification>) => {
@@ -782,6 +940,9 @@ const CertificationsForm = ({
 
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 30 }, (_, i) => currentYear - i);
+
+  const lastCert = data.length > 0 ? data[data.length - 1] : null;
+  const canAddCertification = !lastCert || lastCert.name.trim() !== "";
 
   return (
     <div className="space-y-6">
@@ -796,7 +957,9 @@ const CertificationsForm = ({
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <label className="text-foreground text-sm font-medium">Certification Name</label>
+              <label className="text-foreground text-sm font-medium">
+                Certification Name <span className="text-destructive">*</span>
+              </label>
               <Input
                 value={cert.name}
                 onChange={(e) => update(index, { name: e.target.value })}
@@ -831,7 +994,7 @@ const CertificationsForm = ({
         </div>
       ))}
 
-      <Button variant="outline" onClick={addCertification} className="w-full">
+      <Button variant="outline" onClick={addCertification} disabled={!canAddCertification} className="w-full">
         <Plus className="mr-2 h-4 w-4" />
         Add Certification
       </Button>
@@ -900,7 +1063,7 @@ const ExtraCurricularForm = ({
   );
 };
 
-const CVFormStep = ({ initialData, onUpdate, onNext: _onNext, user }: CVFormStepProps) => {
+const CVFormStep = ({ ref, initialData, onUpdate, onNext: _onNext, user }: CVFormStepProps) => {
   const [activeSection, setActiveSection] = useState<
     | "personal"
     | "experience"
@@ -910,6 +1073,9 @@ const CVFormStep = ({ initialData, onUpdate, onNext: _onNext, user }: CVFormStep
     | "certifications"
     | "extraCurricular"
   >("personal");
+  const [personalInfoErrors, setPersonalInfoErrors] = useState<PersonalInfoErrors>({});
+  const [skillsError, setSkillsError] = useState<string | undefined>();
+  const [linkInput, setLinkInput] = useState({ name: "", href: "" });
   const [formData, setFormData] = useState<Partial<CV>>(
     initialData || {
       personalInfo: {
@@ -930,11 +1096,91 @@ const CVFormStep = ({ initialData, onUpdate, onNext: _onNext, user }: CVFormStep
     },
   );
 
+  const personalInfoComplete =
+    !!(formData.personalInfo?.fullName?.trim()) &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.personalInfo?.email ?? "");
+
+  const skillsComplete = (formData.skills ?? []).length > 0;
+
+  const sectionEnabled = (id: string) => {
+    if (id === "personal") return true;
+    if (id === "skills") return personalInfoComplete;
+    return personalInfoComplete && skillsComplete;
+  };
+
   const updateFormData = (updates: Partial<CV>) => {
     const newData = { ...formData, ...updates };
     setFormData(newData);
     onUpdate(newData);
+
+    const nowPersonalComplete =
+      !!(newData.personalInfo?.fullName?.trim()) &&
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newData.personalInfo?.email ?? "");
+
+    if (!nowPersonalComplete && activeSection !== "personal") {
+      setActiveSection("personal");
+    }
   };
+
+  useImperativeHandle(ref, () => ({
+    validate: () => {
+      const fullNameError = validateRequired(formData.personalInfo?.fullName ?? "", "Full Name");
+      const emailError = validateEmail(formData.personalInfo?.email ?? "");
+      const phoneError = validatePhone(formData.personalInfo?.phone ?? "");
+
+      const pendingFilled = linkInput.name.trim() || linkInput.href.trim();
+      const linkInputErrors = pendingFilled
+        ? { name: validateRequired(linkInput.name, "Label"), href: validateUrl(linkInput.href) }
+        : undefined;
+      const hasLinkInputError = !!(linkInputErrors?.name || linkInputErrors?.href);
+
+      // Flush a valid pending link into formData before proceeding
+      let committedLinks = formData.personalInfo?.links ?? [];
+      if (pendingFilled && !hasLinkInputError) {
+        const newLink = { name: linkInput.name.trim(), href: linkInput.href.trim() };
+        committedLinks = [...committedLinks, newLink];
+        const updatedPersonalInfo = { ...formData.personalInfo, links: committedLinks } as CV["personalInfo"];
+        const newData = { ...formData, personalInfo: updatedPersonalInfo };
+        setFormData(newData);
+        onUpdate(newData);
+        setLinkInput({ name: "", href: "" });
+      }
+
+      const linkErrors: Record<number, { name?: string; href?: string }> = {};
+      committedLinks.forEach((link, i) => {
+        const nameErr = validateRequired(link.name, "Label");
+        const hrefErr = validateUrl(link.href);
+        if (nameErr || hrefErr) linkErrors[i] = { name: nameErr, href: hrefErr };
+      });
+
+      const newErrors: PersonalInfoErrors = {
+        fullName: fullNameError,
+        email: emailError,
+        phone: phoneError,
+        links: Object.keys(linkErrors).length ? linkErrors : undefined,
+        linkInput: pendingFilled && !hasLinkInputError ? undefined : linkInputErrors,
+      };
+      setPersonalInfoErrors(newErrors);
+
+      const hasPersonalErrors =
+        !!fullNameError ||
+        !!emailError ||
+        !!phoneError ||
+        Object.keys(linkErrors).length > 0 ||
+        hasLinkInputError;
+
+      const skillsErr = (formData.skills ?? []).length === 0 ? "At least one skill is required" : undefined;
+      if (skillsErr) setSkillsError(skillsErr);
+
+      if (hasPersonalErrors) {
+        setActiveSection("personal");
+      } else if (skillsErr) {
+        setActiveSection("skills");
+      }
+
+      return !hasPersonalErrors && !skillsErr;
+    },
+  }));
 
   const sections = [
     { id: "personal" as const, name: "Personal Info", icon: User },
@@ -950,20 +1196,26 @@ const CVFormStep = ({ initialData, onUpdate, onNext: _onNext, user }: CVFormStep
     <div className="grid gap-6 md:grid-cols-4">
       <div className="md:col-span-1">
         <nav className="space-y-1">
-          {sections.map((section) => (
-            <button
-              key={section.id}
-              onClick={() => setActiveSection(section.id)}
-              className={`flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left transition-colors ${
-                activeSection === section.id
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              }`}
-            >
-              <section.icon className="h-4 w-4" />
-              {section.name}
-            </button>
-          ))}
+          {sections.map((section) => {
+            const enabled = sectionEnabled(section.id);
+            return (
+              <button
+                key={section.id}
+                onClick={() => enabled && setActiveSection(section.id)}
+                disabled={!enabled}
+                className={`flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left transition-colors ${activeSection === section.id
+                    ? "bg-primary text-primary-foreground"
+                    : enabled
+                      ? "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      : "text-muted-foreground cursor-not-allowed opacity-40"
+                  }`}
+              >
+                <section.icon className="h-4 w-4 shrink-0" />
+                <span className="flex-1">{section.name}</span>
+                {!enabled && <Lock className="h-3 w-3 shrink-0" />}
+              </button>
+            );
+          })}
         </nav>
       </div>
 
@@ -977,6 +1229,10 @@ const CVFormStep = ({ initialData, onUpdate, onNext: _onNext, user }: CVFormStep
               <PersonalInfoForm
                 data={formData.personalInfo}
                 onChange={(personalInfo) => updateFormData({ personalInfo })}
+                errors={personalInfoErrors}
+                onErrorsChange={setPersonalInfoErrors}
+                linkInput={linkInput}
+                onLinkInputChange={setLinkInput}
               />
             )}
             {activeSection === "experience" && (
@@ -995,6 +1251,8 @@ const CVFormStep = ({ initialData, onUpdate, onNext: _onNext, user }: CVFormStep
               <SkillsForm
                 data={formData.skills || []}
                 onChange={(skills) => updateFormData({ skills })}
+                error={skillsError}
+                onErrorClear={() => setSkillsError(undefined)}
               />
             )}
             {activeSection === "projects" && (

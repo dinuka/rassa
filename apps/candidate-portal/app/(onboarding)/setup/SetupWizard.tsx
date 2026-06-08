@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { ArrowLeft, ArrowRight, Check, FileText, Upload } from "lucide-react";
 
@@ -19,7 +19,7 @@ import {
 
 import apiFetch from "@/lib/apiFetch";
 
-import CVFormStep from "./steps/CVFormStep";
+import CVFormStep, { type CVFormStepHandle } from "./steps/CVFormStep";
 import CVPreviewStep from "./steps/CVPreviewStep";
 import CVUploadStep from "./steps/CVUploadStep";
 
@@ -60,19 +60,16 @@ const MethodSelection = ({ onSelect }: { onSelect: (method: SetupMethod) => void
       </CardContent>
     </Card>
 
-    <Card
-      className="hover:border-primary/50 hover:bg-card/80 group cursor-pointer transition-all"
-      onClick={() => onSelect("linkedin")}
-    >
+    <Card className="group relative cursor-not-allowed opacity-60 transition-all">
       <CardHeader className="pb-2 text-center">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-[#0A66C2]/10 transition-colors group-hover:bg-[#0A66C2]/20">
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-[#0A66C2]/10">
           <LinkedInIcon size={28} />
         </div>
         <CardTitle className="text-lg">Import from LinkedIn</CardTitle>
         <CardDescription>Generate a CV from your LinkedIn profile</CardDescription>
       </CardHeader>
       <CardContent className="text-center">
-        <p className="text-muted-foreground text-xs">Quick and easy setup</p>
+        <p className="text-muted-foreground text-xs">Coming soon</p>
       </CardContent>
     </Card>
 
@@ -100,6 +97,7 @@ const SetupWizard = ({ user }: SetupWizardProps) => {
   const [cvData, setCvData] = useState<Partial<CV> | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const cvFormRef = useRef<CVFormStepHandle>(null);
 
   const handleMethodSelect = (selectedMethod: SetupMethod) => {
     setMethod(selectedMethod);
@@ -191,6 +189,7 @@ const SetupWizard = ({ user }: SetupWizardProps) => {
 
         {currentStep === 2 && isEditing && (
           <CVFormStep
+            ref={cvFormRef}
             initialData={cvData}
             onUpdate={handleCVDataUpdate}
             onNext={handleNext}
@@ -208,6 +207,7 @@ const SetupWizard = ({ user }: SetupWizardProps) => {
 
         {currentStep === 2 && !isEditing && method === "manual" && (
           <CVFormStep
+            ref={cvFormRef}
             initialData={cvData}
             onUpdate={handleCVDataUpdate}
             onNext={handleNext}
@@ -238,7 +238,13 @@ const SetupWizard = ({ user }: SetupWizardProps) => {
             <Check className="ml-2 h-4 w-4" />
           </Button>
         ) : currentStep === 2 ? (
-          <Button onClick={handleNext} disabled={!cvData}>
+          <Button
+            onClick={() => {
+              if (cvFormRef.current && !cvFormRef.current.validate()) return;
+              handleNext();
+            }}
+            disabled={!cvData}
+          >
             Continue
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
